@@ -8,16 +8,14 @@
 
 
 int maxSubArray(int* nums, int numsSize) {
-	int i, j, sum;
+	int tmp, min_sum = 0, sum = 0;
 	int max_sum = nums[0];
-	for (i = 0; i < numsSize; i++) {
-		sum = 0;
-		for (j = i; j < numsSize; j++) {
-			sum += nums[j];
-			if (sum > max_sum)
-				max_sum = sum;
-			printf("nums[%d] to nums[%d] SUM: %d\n", i, j, sum);
-		}
+	for (int i = 0; i < numsSize; i++) {
+		sum += nums[i];
+		tmp = sum - min_sum;
+		if (tmp > max_sum)
+			max_sum = tmp;
+		min_sum = sum < min_sum ? sum : min_sum;
 	}
 	return max_sum;
 }
