@@ -8,31 +8,107 @@
 #define true 1
 #define false 0
 
+
+
+
 int max_y(int a, int b) {
 	return a > b ? a : b;
 }
 
-
-typedef struct TreeNode {
+struct TreeNode {
 	int val;
 	struct TreeNode* left;
 	struct TreeNode* right;
-} TreeNode;
+};
 
+#define QUEUE_SIZE 1000
+typedef struct {
+	struct TreeNode* val[QUEUE_SIZE];
+	int rear;
+	int front;
+}Queue;
 
+bool isEmpty(Queue *q) {
+	if (q->front == q->rear)
+		return true;
+	return false;
+}
+
+struct TreeNode* deQueue(Queue *q) {
+	if (isEmpty(q))
+		return NULL;
+	struct TreeNode *x = q->val[q->front];
+	q->front = (q->front + 1) % QUEUE_SIZE;
+	return x;
+}
+
+bool enQueue(Queue *q, struct TreeNode* x) {
+	if ((q->rear + 1) % QUEUE_SIZE == q->front)
+		return false;
+	q->val[q->rear] = x;
+	q->rear = (q->rear + 1) % QUEUE_SIZE;
+	return true;
+}
+
+struct TreeNode* getQueue(Queue* q) {
+	if (isEmpty(q))
+		return NULL;
+	return q->val[(q->rear+QUEUE_SIZE-1)%QUEUE_SIZE];
+}
+
+void initQueue(Queue *q) {
+	q->front = 0;
+	q->rear = 0;
+}
+
+Queue tmp;
 
 int maxDepth(struct TreeNode* root) {
-	if (root)
-		return max_y(maxDepth(root->left), maxDepth(root->right)) + 1;
-	return 0;
+	if (!root)
+		return 0;
+
+	
+	Queue *q = &tmp;
+
+	// printf("size %d\n", sizeof(q->val));
+	initQueue(q);
+	
+	enQueue(q, root);
+	struct TreeNode* p;
+	int deep = 0;
+	struct TreeNode* end = root;
+	while (!isEmpty(q)){
+		p = deQueue(q);
+		// printf("node %d\n", p->val);
+		if (p->left)
+			enQueue(q, p->left);
+		if (p->right)
+			enQueue(q, p->right);
+			
+		if (p == end) {
+			deep++;
+			end = getQueue(q);
+			//if (end)
+			//printf("end %d", end->val);
+		}
+			
+	}
+	return deep;
 }
 
 int main() {
-	TreeNode* root = (TreeNode*)malloc(sizeof(TreeNode));
-	TreeNode* node9 = (TreeNode*)malloc(sizeof(TreeNode));
-	TreeNode* node20 = (TreeNode*)malloc(sizeof(TreeNode));
-	TreeNode* node15 = (TreeNode*)malloc(sizeof(TreeNode));
-	TreeNode* node7 = (TreeNode*)malloc(sizeof(TreeNode));
+	struct TreeNode* root = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+	struct TreeNode* node9 = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+	struct TreeNode* node20 = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+	struct TreeNode* node15 = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+	struct TreeNode* node7 = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+
+	root->val = 3;
+	node9->val = 9;
+	node20->val = 20;
+	node15->val = 15;
+	node7->val = 7;
+
 	root->left = node9;
 	root->right = node20;
 	node9->left = NULL;
@@ -43,6 +119,10 @@ int main() {
 	node15->right = NULL;
 	node7->left = NULL;
 	node7->right = NULL;
+
+	//root->left = NULL;
+	//root->right = NULL;
+
 	printf("depth=%d\n", maxDepth(root));
 
 
