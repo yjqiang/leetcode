@@ -50,10 +50,10 @@ bool enQueue(Queue *q, struct TreeNode* x) {
 	return true;
 }
 
-struct TreeNode* getQueue(Queue* q) {
+struct TreeNode* getQueueSize(Queue* q) {
 	if (isEmpty(q))
 		return NULL;
-	return q->val[(q->rear+QUEUE_SIZE-1)%QUEUE_SIZE];
+	return (q->rear + QUEUE_SIZE - q->front) % QUEUE_SIZE;
 }
 
 void initQueue(Queue *q) {
@@ -77,21 +77,18 @@ int maxDepth(struct TreeNode* root) {
 	struct TreeNode* p;
 	int deep = 0;
 	struct TreeNode* end = root;
+	int size;
 	while (!isEmpty(q)){
-		p = deQueue(q);
-		// printf("node %d\n", p->val);
-		if (p->left)
-			enQueue(q, p->left);
-		if (p->right)
-			enQueue(q, p->right);
-			
-		if (p == end) {
-			deep++;
-			end = getQueue(q);
-			//if (end)
-			//printf("end %d", end->val);
+		size = getQueueSize(q);
+		for (int i = 0; i < size; i++) {
+			p = deQueue(q);
+			// printf("node %d\n", p->val);
+			if (p->left)
+				enQueue(q, p->left);
+			if (p->right)
+				enQueue(q, p->right);
 		}
-			
+		deep++;	
 	}
 	return deep;
 }
@@ -120,8 +117,8 @@ int main() {
 	node7->left = NULL;
 	node7->right = NULL;
 
-	//root->left = NULL;
-	//root->right = NULL;
+	root->left = NULL;
+	root->right = NULL;
 
 	printf("depth=%d\n", maxDepth(root));
 
