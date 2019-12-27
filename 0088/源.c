@@ -13,31 +13,27 @@ int max_y(int a, int b) {
 }
 
 
-
-int tmp[10000];
-
 void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
 	int i;
 	int j;
 	int k;
-	for (i = 0, j = 0, k = 0; i < m && j < n; k ++) {
-		if (nums1[i] <= nums2[j])
-			tmp[k] = nums1[i++];
+	for (i = m-1, j = n-1, k = m+n-1; i >0 && j >0 ; k --) {
+		if (nums1[i] >= nums2[j])
+			nums1[k] = nums1[i--];
 		else
-			tmp[k] = nums2[j++];
+			nums1[k] = nums2[j--];
 	}
 
-	while (i < m)
-		tmp[k++] = nums1[i++];
+	while (i > 0)
+		nums1[k--] = nums1[i--];
 
-	while (j < n)
-		tmp[k++] = nums2[j++];
+	while (j > 0)
+		nums1[k--] = nums2[j--];
 	//printf("k=%d\n", k);
 	//for (int i = 0; i < m + n; i++)
-	//	printf("%d  ", tmp[i]);
+	//	printf("%d  ", nums1[i]);
 	//printf("\n %d \n", k);
-	for (i = 0; i < k; i++)
-		nums1[i] = tmp[i];
+
 }
 
 int main() {
