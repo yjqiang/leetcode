@@ -67,21 +67,47 @@ int min_y(int a, int b) {
 	return a < b ? a : b;
 }
 
-// if prices[i]->prices[j], then i must be the min element in [price[0], price[i-1]](including price[0] and price[i-1]) 
+// split the origin array to 3 "parts": 
+// both of element should be in [left, mid],
+// (the left element should be in [left, mid] while the right ele should be in [mid+1, right]), 
+// both of element should be in [mid+1, right] 
+int func(int* prices, int left, int right) {
+	if (left >= right)
+		return 0;
+	int mid = (left + right) / 2;
+
+	int left_part_result = func(prices, left, mid);
+
+	int right_part_result = func(prices, mid + 1, right);
+
+	int mid_part_result;
+	// [left, mid] must not be empty!!!
+	int min_left_part = INT_MAX;
+	for (int i = mid; i >= 0; i--)
+		min_left_part = min_y(min_left_part, prices[i]);
+	// [mid+1, right] might be empty
+	int max_right_part = INT_MIN;
+	for (int i = mid + 1; i <= right; i++)
+		max_right_part = max_y(max_right_part, prices[i]);
+	if (max_right_part == INT_MIN)
+		mid_part_result = 0;
+	else
+		mid_part_result = max_right_part - min_left_part;
+
+	printf("left=%d, right=%d, mid=%d ||| left_part_result=%d, right_part_result=%d, mid_part_result=%d\n", left, right, mid, left_part_result, right_part_result, mid_part_result);
+	return max_y(max_y(left_part_result, right_part_result), mid_part_result);
+
+}
+
+
 int maxProfit(int* prices, int pricesSize) {
-	int min_ele = INT_MAX;
-	int max_profit = 0;
-	for (int i = 0; i < pricesSize; i++) {
-		max_profit = max_y(prices[i] - min_ele, max_profit);
-		min_ele = min_y(min_ele, prices[i]);
-		printf("i=%d max_profit=%d min_ele=%d\n", i, max_profit, min_ele);
-	}
-	return max_profit;
+	printf("pricesSize=%d\n", pricesSize);
+	return func(prices, 0, pricesSize - 1);
 }
 
 
 int main() {
-	int a[] = { 7,6,4,3,1 };
+	int a[] = { 7,1,5,3,6,4 };
 	printf("BEST: %d", maxProfit(a, sizeof(a) / sizeof(a[0])));
 
 
