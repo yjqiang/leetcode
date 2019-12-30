@@ -59,54 +59,72 @@ int min_y(int a, int b) {
 }
 
 
-#define STACK_SIZE 1000
+#define STACK_SIZE 10000
 
 typedef struct {
-	int elements[STACK_SIZE];
-	int min_elements[STACK_SIZE];
+	long long elements[STACK_SIZE];
+	long long min_element;
 	int top;
 } MinStack;
-
-/** initialize your data structure here. */
 
 MinStack* minStackCreate() {
 	MinStack* s = (MinStack*)malloc(sizeof(MinStack));
 	s->top = -1;
+	s->min_element = 0;
 	return s;
 }
 
 void minStackPush(MinStack* obj, int x) {
 	(obj->top)++;
-	obj->elements[obj->top] = x;
-	obj->min_elements[obj->top] = (obj->top == 0 || x < (obj->min_elements[obj->top - 1])) ? x : obj->min_elements[obj->top - 1];
+	// was empty
+	if (! obj->top) {
+		obj->min_element = x;
+		obj->elements[obj->top] = 0;
+		printf("stack after pushing %lld %lld\n", obj->elements[obj->top], obj->min_element);
+		return;
+	}
+	obj->elements[obj->top] = long long(x) - long long(obj->min_element);
+	if (x < (obj->min_element))
+		obj->min_element = x;
+	printf("stack after pushing %lld %lld\n", obj->elements[obj->top], obj->min_element);
 }
 
 void minStackPop(MinStack* obj) {
-	(obj->top)--;
+	if (obj->elements[obj->top] < 0)
+		obj->min_element = (obj->min_element) - (obj->elements[obj->top]);
+	obj->top--;
+	// printf("stack after poping %d %d\n", obj->elements[obj->top], obj->min_element);
 }
 
 int minStackTop(MinStack* obj) {
-	return obj->elements[(obj->top)];
+	// printf("%d %d\n", obj->elements[obj->top], obj->elements[obj->top]);
+	if (obj->elements[obj->top] < 0)
+		return obj->min_element;
+	return (obj->min_element) + (obj->elements[obj->top]);
 }
 
 int minStackGetMin(MinStack* obj) {
-	return obj->min_elements[obj->top];
+	return obj->min_element;
 }
 
 void minStackFree(MinStack* obj) {
 	free(obj);
 }
 
-
 int main() {
 	MinStack* obj = minStackCreate();
-	minStackPush(obj, 4);
 
-	int param_3 = minStackTop(obj);
+	//["MinStack", "push", "push", "push", "top", "pop", "getMin", "pop", "getMin", "pop", "push", "top", "getMin", "push", "top", "getMin", "pop", "getMin"]
+	//[[], [2147483646], [2147483646], [2147483646], [], [], [], [], [], [], [2147483647], [], [], [-2147483648], [], [], [], []]
 
-	int param_4 = minStackGetMin(obj);
-
+	minStackPush(obj, 2147483647);
+	printf("%d\n", minStackTop(obj));
+	printf("%d\n", minStackGetMin(obj));
+	minStackPush(obj, -2147483648);
+	printf("%d\n", minStackTop(obj));
+	printf("%d\n", minStackGetMin(obj));
+	minStackPop(obj);
+	printf("%d\n", minStackGetMin(obj));
 	minStackFree(obj);
-	printf("%d  %d", param_3, param_4);
 
 }
