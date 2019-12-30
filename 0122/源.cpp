@@ -68,23 +68,18 @@ int min_y(int a, int b) {
 int maxProfit(int* prices, int pricesSize) {
 	if (!pricesSize)
 		return 0;
-	int start_index = 0;
 	int sum_profit = 0;
 	for (int i = 1; i < pricesSize; i++) {
-		if (prices[i] < prices[i - 1]) {
-			printf("cut prices[%d]=%d\n", i, prices[i]);
-			sum_profit += prices[i - 1] - prices[start_index];
-			start_index = i;
+		if (prices[i] > prices[i - 1]) {
+			sum_profit += -prices[i - 1] + prices[i];
 		}
 	}
-	if (pricesSize - 1 == start_index)
-		return sum_profit;
-	return sum_profit + prices[pricesSize - 1] - prices[start_index];
+	return sum_profit;
 }
 
 
 int main() {
-	int a[] = { 7,6,4,3,1 };
+	int a[] = { 7,1,5,3,6,4 };
 	printf("BEST: %d", maxProfit(a, sizeof(a) / sizeof(a[0])));
 
 
