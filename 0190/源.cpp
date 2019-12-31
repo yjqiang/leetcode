@@ -64,8 +64,9 @@ uint32_t reverseBits(uint32_t n) {
 	uint32_t sum = 0;
 	// not zero
 	for (int i = 0; i < 32;i++) {
-		sum = sum * 2 + n % 2;
-		n = n / 2;
+		sum = (sum << 1) + (n & 1);
+		// printf("%u\n", sum);
+		n = n >> 1;
 	}
 	return sum;
 }
