@@ -93,26 +93,27 @@ void printListNodes(struct ListNode* head) {
 	printf("\n");
 }
 
-// insert from tail
+// del
 struct ListNode* removeElements(struct ListNode* head, int val) {
 	struct ListNode* p = head, * tmp;
 
 	head = (struct ListNode*)malloc(sizeof(struct ListNode));
-	struct ListNode* tail = head;
+	head->next = p;
+	struct ListNode* pre = head;
 	while (p != NULL) {
-		if (p->val != 6) {
-			tail->next = p;
-			tail = p;
+		if (p->val != val) {
+			pre = p;
 			p = p->next;
 		}
 		else
-		{
+		{		
 			tmp = p;
 			p = p->next;
+			pre->next = p;
 			free(tmp);
 		}
 	}
-	tail->next = NULL;
+	pre->next = NULL;
 	tmp = head;
 	head = head->next;
 	free(tmp);
@@ -120,7 +121,7 @@ struct ListNode* removeElements(struct ListNode* head, int val) {
 }
 
 int main() {
-	int a[] = {1};
+	int a[] = {6, 1, 2, 4, 6};
 	int size = sizeof(a) / sizeof(a[0]);
 	struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
 	struct ListNode* p, * tail=head;
