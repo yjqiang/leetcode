@@ -93,22 +93,23 @@ void printListNodes(struct ListNode* head) {
 	printf("\n");
 }
 
-// insert from head
 struct ListNode* reverseList(struct ListNode* head) {
-	struct ListNode* p = head, * tmp;
+	if (head == NULL)
+		return NULL;
 
-	head = NULL;
-	while (p != NULL) {
-		tmp = p->next;
-		p->next = head;
-		head = p;
-		p = tmp;
+	struct ListNode* next = head->next;
+	if (next != NULL) {
+		// after reversing, "next" was removed to the end.
+		struct ListNode* reversed_others = reverseList(next);
+		next->next = head;
+		head->next = NULL;
+		head = reversed_others;
 	}
 	return head;
 }
 
 int main() {
-	int a[] = { 1 };
+	int a[] = { 1, 2, 3, 4, 5 };
 	int size = sizeof(a) / sizeof(a[0]);
 	struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
 	struct ListNode* p, * tail=head;
