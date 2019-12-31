@@ -59,19 +59,34 @@ int min_y(int a, int b) {
 	return a < b ? a : b;
 }
 
+char* int2bin(int a, char* buffer, int buf_size) {
+
+	for (int i = 0; i < 32; i++) {
+		*(buffer + buf_size - i - 1) = (a & 1) + '0';
+
+		a >>= 1;
+	}
+	for (int i = 0; i < 32; i++)
+		if (i % 4 == 3)
+			printf("%c,", buffer[i]);
+		else
+			printf("%c", buffer[i]);
+	printf("\n");
+	return buffer;
+}
 
 int hammingWeight(uint32_t n) {
-	uint32_t sum = 0;
-	for (int i = 0; i < 32; i++) {
-		sum += n & 1;
-		n = n >>1;
-	}
-	return sum;
+	n = ((n & 0xaaaaaaaa) >> 1) + (n & 0x55555555);
+	n = ((n & 0xcccccccc) >> 2) + (n & 0x33333333);
+	n = ((n & 0xf0f0f0f0) >> 4) + (n & 0x0f0f0f0f);
+	n = ((n & 0xff00ff00) >> 8) + (n & 0x00ff00ff);
+	n = ((n & 0xffff0000) >> 16) + (n & 0x0000ffff);
+	return n;
 }
 
 
 int main() {
-	uint32_t n= 0b11111111111111111111111111111101;
+	uint32_t n= 0b11111111111111111111111111110001;
 	printf("%u\n", hammingWeight(n));
 
 }
