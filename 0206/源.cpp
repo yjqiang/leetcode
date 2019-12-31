@@ -93,19 +93,19 @@ void printListNodes(struct ListNode* head) {
 	printf("\n");
 }
 
-struct ListNode* reverseList(struct ListNode* head) {
-	if (head == NULL)
-		return NULL;
-
-	struct ListNode* next = head->next;
-	if (next != NULL) {
-		// after reversing, "next" was removed to the end.
-		struct ListNode* reversed_others = reverseList(next);
-		next->next = head;
-		head->next = NULL;
-		head = reversed_others;
+struct ListNode* reverse(struct ListNode* done_head, struct ListNode* remain) {
+	if (remain == NULL) {
+		return done_head;
 	}
-	return head;
+	struct ListNode* tmp = remain->next;
+	remain->next = done_head;
+	return reverse(remain, tmp);
+
+}
+
+struct ListNode* reverseList(struct ListNode* head) {
+	
+	return reverse(NULL, head);
 }
 
 int main() {
