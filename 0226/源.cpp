@@ -14,6 +14,44 @@ struct TreeNode {
 	struct TreeNode* right;
 };
 
+char* int2bin(int a, char* buffer, int buf_size) {
+
+	for (int i = 0; i < 32; i++) {
+		*(buffer + buf_size - i - 1) = (a & 1) + '0';
+
+		a >>= 1;
+	}
+	for (int i = 0; i < 32; i++)
+		if (i % 4 == 3)
+			printf("%c,", buffer[i]);
+		else
+			printf("%c", buffer[i]);
+	printf("\n");
+	return buffer;
+}
+
+int max_y(int a, int b) {
+	return a > b ? a : b;
+}
+
+int min_y(int a, int b) {
+	return a < b ? a : b;
+}
+
+
+struct ListNode {
+	int val;
+	struct ListNode* next;
+
+};
+
+
+void printListNodes(struct ListNode* head) {
+	for (struct ListNode* p = head; p != NULL; p = p->next)
+		printf("%d ", p->val);
+	printf("\n");
+}
+
 #define QUEUE_SIZE 1000
 typedef struct {
 	struct TreeNode* val[QUEUE_SIZE];
@@ -56,54 +94,28 @@ void initQueue(Queue *q) {
 
 
 
-char* int2bin(int a, char* buffer, int buf_size) {
-
-	for (int i = 0; i < 32; i++) {
-		*(buffer + buf_size - i - 1) = (a & 1) + '0';
-
-		a >>= 1;
-	}
-	for (int i = 0; i < 32; i++)
-		if (i % 4 == 3)
-			printf("%c,", buffer[i]);
-		else
-			printf("%c", buffer[i]);
-	printf("\n");
-	return buffer;
-}
-
-int max_y(int a, int b) {
-	return a > b ? a : b;
-}
-
-int min_y(int a, int b) {
-	return a < b ? a : b;
-}
-
-
-struct ListNode {
-	int val;
-	struct ListNode* next;
-	
-};
-
-
-void printListNodes(struct ListNode* head) {
-	for (struct ListNode* p = head; p != NULL; p = p->next)
-		printf("%d ", p->val);
-	printf("\n");
-}
+Queue tmp;
 
 
 struct TreeNode* invertTree(struct TreeNode* root) {
-	if (root == NULL)
-		return NULL;
+	Queue* q = &tmp;
 	struct TreeNode* p;
-	invertTree(root->left);
-	invertTree(root->right);
-	p = root->left;
-	root->left = root->right;
-	root->right = p;
+	struct TreeNode* swap;
+	if (!root)
+		return NULL;
+	enQueue(q, root);
+	while (!isEmpty(q)){
+		p = deQueue(q);
+		swap = p->left;
+		p->left = p->right;
+		p->right = swap;
+
+		if (p->left)
+			enQueue(q, p->left);
+		if (p->right)
+			enQueue(q, p->right);
+
+	}
 	return root;
 }
 
