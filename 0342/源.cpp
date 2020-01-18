@@ -54,7 +54,7 @@ bool isPowerOfFour(int num) {
 		return false;
 	if (num & (num - 1))
 		return false;
-	if (num & 0xaaaaaaaa)
+	if ((num-1)%3)
 		return false;
 	return true;
 }
