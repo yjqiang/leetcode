@@ -52,11 +52,11 @@ void printListNodes(struct ListNode* head) {
 bool isPowerOfFour(int num) {
 	if (num <= 0)
 		return false;
-	while (!(num&0x3))
-		num = num >> 2;
-	if (num == 1)
-		return true;
-	return false;
+	if (num & (num - 1))
+		return false;
+	if (num & 0xaaaaaaaa)
+		return false;
+	return true;
 }
 
 
