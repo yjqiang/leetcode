@@ -52,8 +52,8 @@ void printListNodes(struct ListNode* head) {
 bool isPowerOfFour(int num) {
 	if (num <= 0)
 		return false;
-	while (!(num%4))
-		num = num / 4;
+	while (!(num&0x3))
+		num = num >> 2;
 	if (num == 1)
 		return true;
 	return false;
@@ -62,5 +62,5 @@ bool isPowerOfFour(int num) {
 
 
 int main() {
-	printf("%d\n", isPowerOfFour(63));
+	printf("%d\n", isPowerOfFour(64));
 }
