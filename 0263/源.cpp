@@ -49,13 +49,13 @@ void printListNodes(struct ListNode* head) {
 
 
 bool isUgly(int num) {
-	if (!num)
+	if (num <= 0)
 		return false;
 	int prime_factors[] = { 2, 3, 5 };
 	int tmp;
 	for (int i = 0; i < 3; i++) {
 		tmp = prime_factors[i];
-		while (!(num%tmp)){
+		while (!(num % tmp)) {
 			num = num / tmp;
 		}
 	}
