@@ -50,15 +50,15 @@ void printListNodes(struct ListNode* head) {
 
 
 void moveZeroes(int* nums, int numsSize) {
-	int i, j;
+	int i, j, tmp;
 	for (i = 0, j = 0; i < numsSize; i++) {
 		if (nums[i]) {
+			tmp = nums[j];
 			nums[j] = nums[i];
+			nums[i] = tmp;
 			j++;
 		}
 	}
-	for (; j < numsSize; j++)
-		nums[j] = 0;
 }
 
 
