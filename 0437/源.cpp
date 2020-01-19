@@ -43,29 +43,32 @@ void printListNodes(struct ListNode* head) {
 	printf("\n");
 }
 
-void hasPath(struct TreeNode* root, int sum, int* result) {
+int hasPath(struct TreeNode* root, int sum) {
 	if (root) {
+		int result0 = 0;
+		int result1 = 0;
+		int result2 = 0;
+
 		sum -= root->val;
 		if (!sum) {
-			(*result)++;
+			result0 = 1;
 		}
-		hasPath(root->left, sum, result);
-		hasPath(root->right, sum, result);
+		result1 = hasPath(root->left, sum);
+		result2 = hasPath(root->right, sum);
+		return result0 + result1 + result2;
 	}
+	return 0;
 }
 
 
-void pathSum1(struct TreeNode* root, int sum, int* result) {
-	if (root) {
-		hasPath(root, sum, result);
-		pathSum1(root->left, sum, result);
-		pathSum1(root->right, sum, result);
-	}
-}
 int pathSum(struct TreeNode* root, int sum) {
-	int result = 0;
-	pathSum1(root, sum, &result);
-	return result;
+	if (root) {
+		int result0 = hasPath(root, sum);
+		int result1 = pathSum(root->left, sum);
+		int result2 = pathSum(root->right, sum);
+		return result0 + result1 + result2;
+	}
+	return 0;
 }
 
 int main() {
