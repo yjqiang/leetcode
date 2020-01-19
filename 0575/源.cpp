@@ -12,6 +12,7 @@
 # include "my.h"
 #include <set>
 #include <unordered_set>
+#include <bitset>
 using namespace std;
 
 #define null element_null
@@ -65,11 +66,10 @@ void test(unordered_map<int, int> m) {
 
 
 int distributeCandies(vector<int>& candies) {
-	unordered_set<int> m;
-	for (auto i = candies.begin(); i != candies.end(); i++) {
-		m.insert(*i);
-	}
-	return myMin((int)(candies.size() / 2), m.size());
+	bitset<200001> m;
+	for (auto i = candies.begin(); i != candies.end(); i++)
+		m.set(*i + 100000);
+	return myMin((int)(candies.size() / 2), m.count());
 }
 
 
