@@ -64,31 +64,33 @@ void test(unordered_map<int, int> m) {
 		printf("test map element: %d %d\n", i->first, i->second);
 }
 
+void reverseVector(vector<int>& v, int left, int right) {
+	int tmp;
+	for (int i = left, j = right; i < j; i++, j--) {
+		tmp = v[i];
+		v[i] = v[j];
+		v[j] = tmp;
+	}
+}
 
 vector<vector<int>> shiftGrid(vector<vector<int>>& grid, int k) {
-	vector<vector<int>> result = grid;
+	vector<int> dimension_1_grid;
+	for (auto i = grid.begin(); i != grid.end(); i++)
+		dimension_1_grid.insert(dimension_1_grid.end(), i->begin(), i->end());
+
 	int m = grid.size();
 	int n = grid[0].size();
-	
-	// k = round * n + right_upset
-	int round = k / n;
-	int down_upset = round % m;
-	if (down_upset){
-		rotate(result.begin(), result.begin() + m - down_upset, result.end());
-	}
+	int size_dimension_1_grid = m * n;
+	k = k % size_dimension_1_grid;
 
-	int right_upset = k % n;
-	if (right_upset) {
-		for (auto i = result.begin(); i != result.end(); i++) {
-			rotate(i->begin(), i->begin() + n - right_upset, i->end());
-		}
-		int last_one;
-		for (int i = 0; i < right_upset; i++) {
-			last_one = result[m - 1][i];
-			for (int j = m - 1; j > 0; j--)
-				result[j][i] = result[(j - 1 + m) % m][i];
-			result[0][i] = last_one;
-		}
+	reverseVector(dimension_1_grid, 0, size_dimension_1_grid - 1);
+	reverseVector(dimension_1_grid, 0, k-1);
+	reverseVector(dimension_1_grid, k, size_dimension_1_grid - 1);
+
+	vector<vector<int>> result;
+	for (int i = 0; i < size_dimension_1_grid; i += n){
+		vector<int> vect(dimension_1_grid.begin() + i, dimension_1_grid.begin() + i + n);
+		result.insert(result.end(), vect);
 	}
 
 	return result;
