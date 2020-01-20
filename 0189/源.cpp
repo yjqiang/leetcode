@@ -65,46 +65,23 @@ void test(unordered_map<int, int> m) {
 }
 
 
-void reverse(vector<int>& nums, int left, int right) {
-	int tmp;
-	for (int i = left, j = right; i < j; i++, j--) {
-		tmp = nums[i];
-		nums[i] = nums[j];
-		nums[j] = tmp;
+void rotate(vector<int>& nums, int k) {
+	int n = nums.size();
+	int pre, current, tmp;
+	for(int count = 0, start=0; count < n; ++ start){
+		current = start;
+		pre = nums[start];
+		
+		do{
+			current = (current + k) % n;
+
+			tmp = pre;
+			pre = nums[current];
+			nums[current] = tmp;
+
+			count++;
+		} while (current != start);
 	}
-}
-
-void rotatea(vector<int>& nums, int k) {
-	int size = nums.size();
-	k = k % size;
-	reverse(nums, 0, size - 1);
-	reverse(nums, 0, k - 1);
-	reverse(nums, k, size - 1);
-}
-////////////////////////////////////////////////////////////////////////////////////
-
-void rotateb(vector<int>& nums, int k) {
-	int size = nums.size();
-	vector<int> result(size, 0);
-	for (int i = 0; i < size; i++)
-		result[(i + k) % size] = nums[i];
-
-	nums = result;
-}
-
-///////////////////////////////////////////////////////////////////////////////////
-
-
-void rotatec(vector<int>& nums, int k) {
-	unsigned int size = nums.size();
-	k = k % size;
-
-	vector<int> result;
-
-	result.insert(result.end(), nums.begin() + size - k, nums.end());
-	result.insert(result.end(), nums.begin(), nums.begin() + size - k);
-
-	nums = result;
 }
 
 
