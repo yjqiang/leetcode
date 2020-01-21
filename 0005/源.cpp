@@ -51,29 +51,27 @@ void printVector(vector<int> m) {
 	printf("............\n");
 }
 
-int extend(string &s,int left, int right){
-	int i = left, j = right;
-	int size = s.size();
-	for (; i >= 0 && j < size && s[i] == s[j]; --i, ++j);
-	return j - i - 1; // (j-1)-(i+1)+1
-}
-
+bool m[1000][1000];
 string longestPalindrome(string s) {
 	int size = s.size();
 	if (!size)
 		return string("");
-	int len0, len1;
 	int start = 0, end = -1;
-	for (int i = 0; i< size; ++i){
-		len0 = extend(s, i, i);
-		len1 = extend(s, i, i + 1);
-
-		len0 = max(len0, len1);
-		if (len0 > end - start + 1){
-			start = i - (len0 - 1) / 2;
-			end = i + (len0) / 2;
+	for (int i = size - 1; i >=0 ;--i)
+		for (int j = i; j < size; ++j) {
+			if (i == j)
+				m[i][j] = true;
+			else if (j - i == 1 && s[i] == s[j])
+				m[i][j] = true;
+			else if (m[i + 1][j - 1] && s[i] == s[j])
+				m[i][j] = true;
+			else
+				m[i][j] = false;
+			if (m[i][j] && j-i > end - start){
+				start = i;
+				end = j;
+			}
 		}
-	}
 	return s.substr(start, end - start + 1);
 }
 
