@@ -50,33 +50,25 @@ void printVector(vector<int> m) {
 
 struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
 	struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
-	int sum = l1->val + l2->val;
-	int c = sum / 10;
-	head->val = sum % 10;
+	struct ListNode* pc = head, * pa = l1, * pb = l2;
+	int a, b, sum=0;
+	while(pa || pb || sum){
+		a = pa ? pa->val : 0;
+		b = pb ? pb->val : 0;
+		sum += a + b;
+		pc->next = (struct ListNode*)malloc(sizeof(struct ListNode));
+		pc = pc->next;
+		pc->val = sum % 10;
+		sum /= 10;
 
-	struct ListNode* pc = head, * pa = l1->next, * pb = l2->next;
-	for (; pa && pb; pa = pa->next, pb = pb->next) {
-		sum = pa->val + pb->val + c;
-		c = sum / 10;
-		pc->next = (struct ListNode*)malloc(sizeof(struct ListNode));
-		pc = pc->next;
-		pc->val = sum % 10;
-	}
-	pa = pa ? pa : pb;
-	for (; pa; pa = pa->next) {
-		sum = pa->val + c;
-		c = sum / 10;
-		pc->next = (struct ListNode*)malloc(sizeof(struct ListNode));
-		pc = pc->next;
-		pc->val = sum % 10;
-	}
-	if (c){
-		pc->next = (struct ListNode*)malloc(sizeof(struct ListNode));
-		pc = pc->next;
-		pc->val = c;
+		pa = pa ? pa->next : NULL;
+		pb = pb ? pb->next : NULL;
 	}
 	pc->next = NULL;
-	return head;
+	pc = head->next;
+	free(head);
+	
+	return pc;
 }
 
 int main() {
