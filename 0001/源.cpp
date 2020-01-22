@@ -59,18 +59,17 @@ void print2dVector(vector<vector<int>> m) {
 
 vector<int> twoSum(vector<int>& nums, int target) {
 	unordered_map<int, int> cache;
-	vector<int> result;
 	
 	for (int i = 0; i < nums.size(); ++i){
-		int wanted = target - nums[i];
-		if (cache.find(wanted) != cache.end()){
-			result.push_back(cache[wanted]);
-			result.push_back(i);
-			return result;
+		auto it = cache.find(target - nums[i]);
+		if (it != cache.end()){
+
+			return vector<int>{it->second, i};
 		}
 		cache[nums[i]] = i;
 	}
-	return result;
+	return vector<int>{};
+	
 }
 
 int main() {
