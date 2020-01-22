@@ -51,32 +51,54 @@ void printVector(vector<int> m) {
 	printf("............\n");
 }
 
-bool m[1000][1000];
 string longestPalindrome(string s) {
-	int size = s.size();
-	if (!size)
+	if (s.empty())
 		return string("");
-	int start = 0, end = -1;
-	for (int i = size - 1; i >=0 ;--i)
-		for (int j = i; j < size; ++j) {
-			if (i == j)
-				m[i][j] = true;
-			else if (j - i == 1 && s[i] == s[j])
-				m[i][j] = true;
-			else if (m[i + 1][j - 1] && s[i] == s[j])
-				m[i][j] = true;
-			else
-				m[i][j] = false;
-			if (m[i][j] && j-i > end - start){
-				start = i;
-				end = j;
-			}
+	char special = '#';
+
+	int size_T = s.size() * 2 + 1;
+	char* T = (char*)malloc(sizeof(char) * size_T);
+
+	for (int i = 0; i < s.size(); ++i) {
+		T[i * 2] = special;
+		T[i * 2 + 1] = s[i];
+	}
+	T[size_T - 1] = special;
+
+
+	int* P = (int*)malloc(sizeof(int) * size_T);
+	int R = 0, C = 0;
+	int radius;
+	int len = 0, start;
+	for (int i = 0; i < size_T; ++i) {
+		if (i < R)
+			radius = min(R - i, P[2 * C - i]);
+		else
+			radius = 0;
+
+		++radius;
+		for (; i - radius >= 0 && i + radius < size_T && T[i - radius] == T[i + radius]; ++radius);
+		--radius;
+
+		P[i] = radius;
+		if (i + radius > R) {
+			R = i + radius;
+			C = i;
 		}
-	return s.substr(start, end - start + 1);
+		if (radius > len)
+		{
+			len = radius;
+			start = (i - radius) / 2;
+		}
+		/*	for (int t = 0; t <= i; t++)
+				cout << P[t] << " ";
+			cout << endl;*/
+	}
+	return s.substr(start, len);
 }
 
 int main() {
-	string s = "babad";
+	string s = "babab";
 	cout << longestPalindrome(s);
 	return 0;
 }
