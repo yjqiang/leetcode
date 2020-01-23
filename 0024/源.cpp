@@ -58,28 +58,16 @@ void print2dVector(vector<vector<int>> m) {
 }
 
 struct ListNode* swapPairs(struct ListNode* head) {
-	if (!head)
-		return NULL;
-	
-	// add dummy head
-	struct ListNode* tmp = (struct ListNode*)malloc(sizeof(struct ListNode));
-	tmp->next = head;
-	head = tmp;
+	struct ListNode** t;
+	for(t = &head; *t && (*t)->next;){
+		struct ListNode* next = (*t)->next;
+		struct ListNode* tmp = *t;
+		*t = next;
+		tmp->next = next->next;
+		next->next = tmp;
 
-	for (struct ListNode* pre = head; (pre->next) && (pre->next->next);){
-		tmp = pre->next;
-		
-		pre->next = tmp->next;
-		tmp->next = pre->next->next;
-		pre->next->next = tmp;
-
-		pre = tmp;
+		t = &(tmp->next);
 	}
-
-	// remove dummy head
-	tmp = head;
-	head = tmp->next;
-	free(tmp);
 	return head;
 	
 }
