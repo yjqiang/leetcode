@@ -59,34 +59,34 @@ void print2dVector(vector<vector<int>> m) {
     printf("----------------------\n");
 }
 
-// 一圈转动(正方形)一环
-void rotate_1(vector<vector<int>>& matrix, int row, int n_1) {
+// clockwise rotate
+void rotate(vector<vector<int> > &matrix) {
+    int matrix_size = matrix.size();
+    for (int i = 0; i < matrix_size; ++i)
+        for (int j = matrix_size - i; j < matrix_size; ++j)
+            swap(matrix[i][j], matrix[matrix_size - j - 1][matrix_size - i - 1]);
 
-    int row_start = row, row_end = n_1 - row;
-
-    for (int i = row_start; i < row_end; i++) {
-        int tmp = matrix[row][i];
-        matrix[row][i] = matrix[n_1 - i][row_start];
-        matrix[n_1 - i][row_start] = matrix[row_end][n_1 - i];
-        matrix[row_end][n_1 - i] = matrix[i][row_end];
-        matrix[i][row_end] = tmp;
-    }
+    reverse(matrix.begin(), matrix.end());
 }
-void rotate(vector<vector<int>>& matrix) {
-    int n_1 = int(matrix.size()) - 1;
-    int half_n_1 = (n_1-1) / 2;
-    for (int i = 0; i <= half_n_1; ++i)
-        rotate_1(matrix, i, n_1);
+
+// anticlockwise rotate
+void anti_rotate(vector<vector<int> > &matrix) {
+    int matrix_size = matrix.size();
+    for (int i = 0; i < matrix_size; ++i)
+        for (int j = matrix_size - i; j < matrix_size; ++j)
+            swap(matrix[i][j], matrix[matrix_size - j - 1][matrix_size - i - 1]);
+
+    for (int i = 0; i < matrix_size; ++i)
+        reverse(matrix[i].begin(), matrix[i].end());
 }
 
 int main() {
     vector<vector<int>> a = {
-    { 5, 1, 9,11},
-    { 2, 4, 8,10},
-    {13, 3, 6, 7},
-    {15,14,12,16}
+    { 1, 2, 3},
+    { 4, 5, 6},
+    { 7, 8, 9},
     };
-    rotate(a);
+    anti_rotate(a);
     print2dVector(a);
     return 0;
 }
