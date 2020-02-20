@@ -61,21 +61,25 @@ void print2dVector(vector<vector<int>> m) {
 
 vector<vector<string>> groupAnagrams(vector<string>& strs) {
     vector<vector<string>> result;
-    unordered_map<string, int> cache;
-    for (int i=0; i < strs.size(); ++i){
-        string sorted = strs[i];
+    unordered_map<string, int> dictionary;
 
-        sort(sorted.begin(), sorted.end());
+    for (string s: strs){
+        int counts[26]= {0};
+        for (char c: s)
+            counts[c - 'a'] += 1;
 
+        string sorted;
+        for (int i = 0; i < 26; ++i)
+            sorted += string(counts[i], i + 'a');
 
-        if (cache.find(sorted) != cache.end()){
-            result[cache[sorted]].push_back(strs[i]);
+        if (dictionary.find(sorted) != dictionary.end()){
+            result[dictionary[sorted]].push_back(s);
         } else{
-            vector<string> t;
-            result.push_back(t);
-            int index = result.size() - 1;
-            cache[sorted] = index;
-            result[index].push_back(strs[i]);
+            int index = dictionary.size();
+            dictionary[sorted] = index;
+
+            result.push_back(vector<string>());
+            result[index].push_back(s);
 
         }
     }
