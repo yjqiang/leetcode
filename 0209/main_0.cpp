@@ -30,7 +30,7 @@ public:
                     t = 0;
 
                 while (t <= i) {
-                    // compare nums[t+1] + ... + nums[n-1] with target
+                    // compare nums[t+1] + ... + nums[i] with target
                     if (sum - nums[t] >= target) {
                         sum -= nums[t];
                         ++t;
