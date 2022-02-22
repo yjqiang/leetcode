@@ -41,7 +41,7 @@ public:
         if (root->val != 0 || left_ok || right_ok)
             return root;
 
-        delete root;
+//        delete root;
         return nullptr;
     }
 };
