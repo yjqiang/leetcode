@@ -86,6 +86,7 @@ public:
         char charAfterCorrection, charOriginal;
         for (i = 0, cur = self_root;i < word.size(); i++){
             charOriginal = word[i];
+            // try to "fix"/replace word[i]
             for (char_index = 0; char_index < 26; ++char_index){
                 charAfterCorrection = (char)('a' + char_index);
                 if (charAfterCorrection != charOriginal) {
