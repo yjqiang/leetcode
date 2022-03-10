@@ -1,96 +1,100 @@
-# include <cstdio>
-# include <cstring>
-# include <cstdlib>
-# include <climits>
-# include <cstdint>
-# include <vector>
-# include <unordered_map>
-#include <set>
-#include <unordered_set>
-#include <unordered_set>
-#include <bitset>
 #include <iostream>
-
-# include "mystack.h"
-# include "myqueue.h"
-# include "mybinarytree.h"
-# include "mylinkedlist.h"
-# include "my.h"
+#include <vector>
+#include <string>
 #include <algorithm>
+#include <unordered_map>
+#include <map>
+#include <queue>
+#include <cstdlib>
 
 using namespace std;
 
-#define null element_null
 
-char* int2bin(int a, char* buffer, int buf_size) {
+#define null (-99)
 
-    for (int i = 0; i < 32; i++) {
-        *(buffer + buf_size - i - 1) = (a & 1) + '0';
+template<typename T>
+void printVector(const T& t) {
+    printf("[");
+    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
+    printf("], ");
+}
 
-        a >>= 1;
+template<typename T>
+void printVectorInVector(const T& t) {
+    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
+}
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+ListNode* createListNode(vector<int> &a) {
+    ListNode *p;
+    ListNode *head, *tail;
+
+    head = new ListNode();
+    head->val = a[0];
+    head->next = nullptr;
+
+    int i;
+    for (i = 1, tail = head; i < a.size(); ++i) {
+        p = new ListNode();
+        p->val = a[i];
+        tail->next = p;
+        tail = p;
     }
-    for (int i = 0; i < 32; i++)
-        if (i % 4 == 3)
-            printf("%c,", buffer[i]);
-        else
-            printf("%c", buffer[i]);
-    printf("\n");
-    return buffer;
+    tail->next = nullptr;
+    return head;
 }
 
 
-
-void printUnorderedMap(unordered_map<int, int> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("map element: %d %d\n", i->first, i->second);
-    printf("............\n");
+void printListNodes(ListNode* head) {
+    for (ListNode* p = head; p != nullptr; p = p->next)
+        printf("%d -> ", p->val);
+    printf("NULL\n");
 }
 
-void printVector(vector<int> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("vector element: %d\n", *i);
-    printf("............\n");
-}
+class Solution {
+public:
+    vector<vector<int>> permuteUnique(vector<int>& nums) {
+        vector<vector<int>> answer;
+        vector<int> tmp;
+        vector<bool> visited(nums.size(), false);
 
-void print2dVector(vector<vector<int>> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printVector(*i);
-    printf("----------------------\n");
-}
-
-void func(vector<int>& nums, vector<vector<int>>& result, bool* visited, vector<int>& tmp){
-    if (tmp.size() == nums.size()){
-        result.push_back(tmp);
-        return;
+        sort(nums.begin(), nums.end());
+        subset(answer, tmp, nums, 0, visited);
+        return answer;
     }
 
-    for (int i = 0; i < nums.size(); ++i)
-        if (!visited[i] && (i==0 || nums[i] != nums[i-1]||visited[i-1])) {
-            visited[i] = true;
+    void subset(vector<vector<int>> &answer, vector<int> &tmp, vector<int> &nums, int depth, vector<bool> &visited){
+        if (depth == nums.size())
+            answer.push_back(tmp);
+
+        int i;
+        for (i = 0; i < nums.size(); ++i){
+            if (visited[i])
+                continue;
+            if (i > 0 && nums[i] == nums[i-1] && !visited[i-1])
+                continue;
+
             tmp.push_back(nums[i]);
+            visited[i] = true;
 
-            func(nums, result, visited, tmp);
+            subset(answer, tmp, nums, depth+1, visited);
 
-            visited[i] = false;  // revert
             tmp.pop_back();
+            visited[i] = false;
         }
+    }
+};
 
-}
+int main(){
+    vector<int> nums = {1,1,2};
 
-vector<vector<int>> permuteUnique(vector<int>& nums) {
-    sort(nums.begin(), nums.end());
-    vector<vector<int>> result;
-    vector<int> tmp;
-    bool* visited = (bool*)malloc(sizeof(bool)*nums.size());
-    for (int i = 0; i < nums.size(); ++i)
-        visited[i] = false;
-
-    func(nums, result, visited, tmp);
-    return result;
-}
-
-int main() {
-    vector<int> a = {0,1,0};
-    print2dVector(permuteUnique(a));
-    return 0;
+    vector<vector<int>> answer = Solution().permuteUnique(nums);
+    printVectorInVector(answer);
 }
