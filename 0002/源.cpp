@@ -1,84 +1,95 @@
-# include <cstdio>
-# include <cstring>
-# include <cstdlib>
-# include <climits>
-# include <cstdint>
-# include <vector>
-# include <unordered_map> 
-
-# include "mystack.h"
-# include "myqueue.h"
-# include "mybinarytree.h"
-# include "mylinkedlist.h"
-# include "my.h"
-#include <set>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <unordered_map>
 #include <unordered_set>
-#include <bitset>
+#include <queue>
+#include <stdlib.h>
+
 using namespace std;
 
-#define null element_null
+#define null (-99)
 
-char* int2bin(int a, char* buffer, int buf_size) {
 
-	for (int i = 0; i < 32; i++) {
-		*(buffer + buf_size - i - 1) = (a & 1) + '0';
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
 
-		a >>= 1;
-	}
-	for (int i = 0; i < 32; i++)
-		if (i % 4 == 3)
-			printf("%c,", buffer[i]);
-		else
-			printf("%c", buffer[i]);
-	printf("\n");
-	return buffer;
+template<typename T>
+void printVector(const T& t) {
+    cout << "[";
+    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
+    cout << "], ";
+}
+
+template<typename T>
+void printVectorInVector(const T& t) {
+    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
+}
+
+ListNode* stringToListNode(vector<int> &list) {
+    // Now convert that list into linked list
+    ListNode* dummyRoot = new ListNode(0);
+    ListNode* ptr = dummyRoot;
+    for(int item : list) {
+        ptr->next = new ListNode(item);
+        ptr = ptr->next;
+    }
+    ptr = dummyRoot->next;
+    delete dummyRoot;
+    return ptr;
+}
+
+void printListNodes(struct ListNode* head) {
+    int i;
+    struct ListNode* p;
+    for (p = head, i = 0; p != nullptr && i < 20; p = p->next, ++i)
+        printf("%d -> ", p->val);
+    printf("null\n");
 }
 
 
+class Solution {
+public:
+    ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+        // 尾插法
+        ListNode* fake_head = new ListNode();
+        ListNode* tail = fake_head;
+        ListNode *p, *q;
+        int remain = 0, a, b;
+        for (p = l1, q = l2; p != nullptr || q != nullptr || remain > 0;){
+            a = (p != nullptr)? p->val: 0;
+            b = (q != nullptr)? q->val: 0;
 
-void printUnorderedMap(unordered_map<int, int> m) {
-	for (auto i = m.begin(); i != m.end(); ++i)
-		printf("map element: %d %d\n", i->first, i->second);
-	printf("............\n");
-}
+            remain += a + b;
 
-void printVector(vector<int> m) {
-	for (auto i = m.begin(); i != m.end(); ++i)
-		printf("vector element: %d\n", *i);
-	printf("............\n");
-}
+            ListNode *new_node = new ListNode(remain % 10, nullptr);
+            tail->next = new_node;
+            tail = new_node;
 
-struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
-	struct ListNode* head = (struct ListNode*)malloc(sizeof(struct ListNode));
-	struct ListNode* pc = head, * pa = l1, * pb = l2;
-	int a, b, sum=0;
-	while(pa || pb || sum){
-		if (pa){
-			sum += pa->val;
-			pa = pa->next;
-		}
-		if (pb) {
-			sum += pb->val;
-			pb = pb->next;
-		}
-		pc->next = (struct ListNode*)malloc(sizeof(struct ListNode));
-		pc = pc->next;
-		pc->val = sum % 10;
-		sum /= 10;
-	}
-	pc->next = NULL;
-	pc = head->next;
-	free(head);
-	
-	return pc;
-}
+            remain /= 10;
+            if (p != nullptr)
+                p = p->next;
+            if (q != nullptr)
+                q = q->next;
+        }
+        ListNode* answer = fake_head->next;
+        delete fake_head;
+        return answer;
+    }
+};
 
-int main() {
-	int a[] = { 2,4,3 };
-	int b[] = { 5,6,9,9 };
-	struct ListNode* la = myLinkedListCreate(a, sizeof(a) / sizeof(a[0]));
-	struct ListNode* lb = myLinkedListCreate(b, sizeof(b) / sizeof(b[0]));
-	struct ListNode* lc = addTwoNumbers(la, lb);
-	myLinkedListPrint(lc);
-	return 0;
+int main(){
+    vector<int> l1_ = {9,9,9,9,9,9,9}, l2_ = {9,9,9,9};
+    ListNode* l1 = stringToListNode(l1_);
+    ListNode* l2 = stringToListNode(l2_);
+    printListNodes(l1);
+    printListNodes(l2);
+    ListNode* answer = Solution().addTwoNumbers(l1, l2);
+    printListNodes(answer);
 }
