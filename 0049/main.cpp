@@ -1,103 +1,96 @@
-# include <cstdio>
-# include <cstring>
-# include <cstdlib>
-# include <climits>
-# include <cstdint>
-# include <vector>
-# include <unordered_map>
-#include <set>
-#include <unordered_set>
-#include <unordered_set>
-#include <bitset>
 #include <iostream>
-
-# include "mystack.h"
-# include "myqueue.h"
-# include "mybinarytree.h"
-# include "mylinkedlist.h"
-# include "my.h"
+#include <vector>
+#include <string>
 #include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <stdlib.h>
 
 using namespace std;
 
-#define null element_null
+#define null (-99)
 
-char* int2bin(int a, char* buffer, int buf_size) {
 
-    for (int i = 0; i < 32; i++) {
-        *(buffer + buf_size - i - 1) = (a & 1) + '0';
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
 
-        a >>= 1;
+template<typename T>
+void printVector(const T& t) {
+    cout << "[";
+    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
+    cout << "], ";
+}
+
+template<typename T>
+void printVectorInVector(const T& t) {
+    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
+}
+
+ListNode* stringToListNode(vector<int> &list) {
+    // Now convert that list into linked list
+    ListNode* dummyRoot = new ListNode(0);
+    ListNode* ptr = dummyRoot;
+    for(int item : list) {
+        ptr->next = new ListNode(item);
+        ptr = ptr->next;
     }
-    for (int i = 0; i < 32; i++)
-        if (i % 4 == 3)
-            printf("%c,", buffer[i]);
-        else
-            printf("%c", buffer[i]);
-    printf("\n");
-    return buffer;
+    ptr = dummyRoot->next;
+    delete dummyRoot;
+    return ptr;
 }
 
-
-
-void printUnorderedMap(unordered_map<int, int> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("map element: %d %d\n", i->first, i->second);
-    printf("............\n");
+void printListNodes(struct ListNode* head) {
+    int i;
+    struct ListNode* p;
+    for (p = head, i = 0; p != nullptr && i < 20; p = p->next, ++i)
+        printf("%d -> ", p->val);
+    printf("null\n");
 }
 
-void printVector(vector<int> m) {
-    printf("vector 1d: ");
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("%4d ", *i);
-    printf("\n");
-}
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        // https://stackoverflow.com/questions/2275076/is-stdvector-copying-the-objects-with-a-push-back
+        // copy 比较花费时间
+        unordered_map<string, vector<string>> result;
+        int i, j;
+        string str;
 
-void print2dVector(vector<vector<int>> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printVector(*i);
-    printf("----------------------\n");
-}
+        for (i = 0; i < strs.size(); ++i){
+            str = strs[i];
+            // https://stackoverflow.com/questions/201101/how-to-initialize-all-members-of-an-array-to-the-same-value
+            // 全 0
+            int count[26] = {0};
+            for (j = 0; j < str.size(); ++j)
+                ++count[str[j]-'a'];
 
-vector<vector<string>> groupAnagrams(vector<string>& strs) {
-    vector<vector<string>> result;
-    unordered_map<string, int> dictionary;
+            string hash_result;
+            for (j = 0; j < 26; ++j) {
+                hash_result += string(count[j], char('a' + j));
+            }
 
-    for (string s: strs){
-        int counts[26]= {0};
-        for (char c: s)
-            counts[c - 'a'] += 1;
-
-        string sorted;
-        for (int i = 0; i < 26; ++i)
-            sorted += string(counts[i], i + 'a');
-
-        if (dictionary.find(sorted) != dictionary.end()){
-            result[dictionary[sorted]].push_back(s);
-        } else{
-            int index = dictionary.size();
-            dictionary[sorted] = index;
-
-            result.push_back(vector<string>());
-            result[index].push_back(s);
-
+            result[hash_result].push_back(str);
         }
+
+        vector<vector<string>> answer;
+        for (auto it = result.begin(); it != result.end(); ++it){
+            answer.push_back(it->second);
+        }
+        return answer;
+
     }
 
-    return result;
-}
 
-int main() {
-    vector<string> a = {"eat", "tea", "tan", "ate", "nat", "bat"};
-    sort(a[1].begin(), a[1].end());
+};
 
-
-    vector<vector<string>> result = groupAnagrams(a);
-    for (int i=0; i<result.size(); ++i){
-        for (int j=0; j< result[i].size(); ++j)
-            cout << result[i][j] << " ";
-        cout << endl;
-    }
-
-    return 0;
+int main(){
+    vector<string> strs = {"eat", "tea", "tan", "ate", "nat", "bat"};
+    vector<vector<string>> answer = Solution().groupAnagrams(strs);
+    printVectorInVector(answer);
 }
