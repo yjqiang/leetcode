@@ -1,88 +1,80 @@
-# include <cstdio>
-# include <cstring>
-# include <cstdlib>
-# include <climits>
-# include <cstdint>
-# include <vector>
-# include <unordered_map>
-#include <set>
-#include <unordered_set>
-#include <unordered_set>
-#include <bitset>
 #include <iostream>
-
-# include "mystack.h"
-# include "myqueue.h"
-# include "mybinarytree.h"
-# include "mylinkedlist.h"
-# include "my.h"
+#include <vector>
+#include <string>
 #include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <stdlib.h>
 
 using namespace std;
 
-#define null element_null
+#define null (-99)
 
-char* int2bin(int a, char* buffer, int buf_size) {
 
-    for (int i = 0; i < 32; i++) {
-        *(buffer + buf_size - i - 1) = (a & 1) + '0';
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
 
-        a >>= 1;
+template<typename T>
+void printVector(const T& t) {
+    cout << "[";
+    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
+    cout << "], ";
+}
+
+template<typename T>
+void printVectorInVector(const T& t) {
+    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
+}
+
+ListNode* stringToListNode(vector<int> &list) {
+    // Now convert that list into linked list
+    ListNode* dummyRoot = new ListNode(0);
+    ListNode* ptr = dummyRoot;
+    for(int item : list) {
+        ptr->next = new ListNode(item);
+        ptr = ptr->next;
     }
-    for (int i = 0; i < 32; i++)
-        if (i % 4 == 3)
-            printf("%c,", buffer[i]);
-        else
-            printf("%c", buffer[i]);
-    printf("\n");
-    return buffer;
+    ptr = dummyRoot->next;
+    delete dummyRoot;
+    return ptr;
 }
 
-
-
-void printUnorderedMap(unordered_map<int, int> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("map element: %d %d\n", i->first, i->second);
-    printf("............\n");
+void printListNodes(struct ListNode* head) {
+    int i;
+    struct ListNode* p;
+    for (p = head, i = 0; p != nullptr && i < 20; p = p->next, ++i)
+        printf("%d -> ", p->val);
+    printf("null\n");
 }
 
-void printVector(vector<int> m) {
-    printf("vector 1d: ");
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("%4d ", *i);
-    printf("\n");
-}
-
-void print2dVector(vector<vector<int>> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printVector(*i);
-    printf("----------------------\n");
-}
-
-static bool cmp (vector<int> &a, vector<int> &b){
-    return a[0] < b[0];
-}
-
-void sortColors(vector<int>& nums) {
-    int n = nums.size();
-    for (int end0 = 0, begin2 = n - 1, current=0; current <= begin2;) {
-
-        if (nums[current] == 0){
-            swap(nums[current], nums[end0]);
-            ++end0;
-            ++current;
+class Solution {
+public:
+    void sortColors(vector<int>& nums) {
+        int p0, cur, p2;
+        for (p0 = cur = 0, p2 = (int)nums.size()-1; cur <= p2; ){
+            if (nums[cur] == 0) {
+                swap(nums[p0], nums[cur]);
+                ++p0;
+                ++cur;
+            }
+            else if (nums[cur] == 2){
+                swap(nums[p2], nums[cur]);
+                --p2;
+            }
+            else
+                ++cur;
         }
-        else if (nums[current] == 2){
-            swap(nums[current], nums[begin2]);
-            --begin2;
-        } else
-            ++current;
     }
-}
+};
 
-int main() {
-    vector<int> a = {2,0};
-    sortColors(a);
-    printVector(a);
-    return 0;
+int main(){
+    vector<int> nums = {2,0,2,1,1,0};
+    Solution().sortColors(nums);
+    printVector(nums);
 }
