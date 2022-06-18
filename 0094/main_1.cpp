@@ -1,98 +1,189 @@
-# include <cstdio>
-# include <cstring>
-# include <cstdlib>
-# include <climits>
-# include <cstdint>
-# include <vector>
-# include <unordered_map>
-#include <set>
-#include <unordered_set>
-#include <unordered_set>
-#include <bitset>
 #include <iostream>
-
-# include "mystack.h"
-# include "myqueue.h"
-# include "mybinarytree.h"
-# include "mylinkedlist.h"
-# include "my.h"
+#include <vector>
+#include <string>
 #include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <stdlib.h>
 
 using namespace std;
 
-#define null element_null
+#define null (-99)
 
-char* int2bin(int a, char* buffer, int buf_size) {
 
-    for (int i = 0; i < 32; i++) {
-        *(buffer + buf_size - i - 1) = (a & 1) + '0';
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
 
-        a >>= 1;
-    }
-    for (int i = 0; i < 32; i++)
-        if (i % 4 == 3)
-            printf("%c,", buffer[i]);
-        else
-            printf("%c", buffer[i]);
-    printf("\n");
-    return buffer;
+template<typename T>
+void printVector(const T& t) {
+    cout << "[";
+    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
+    cout << "], ";
 }
 
-
-
-void printUnorderedMap(unordered_map<int, int> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("map element: %d %d\n", i->first, i->second);
-    printf("............\n");
+template<typename T>
+void printVectorInVector(const T& t) {
+    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
 }
 
-void printVector(vector<int> m) {
-    printf("vector 1d: ");
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("%4d ", *i);
-    printf("\n");
-}
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+};
 
-void print2dVector(vector<vector<int>> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printVector(*i);
-    printf("----------------------\n");
-}
+TreeNode* createTree(vector<int>& inputs){
+    queue<TreeNode*> my_queue;
+    TreeNode* root = new TreeNode(inputs[0]);
+    my_queue.push(root);
 
-static bool cmp (vector<int> &a, vector<int> &b){
-    return a[0] < b[0];
-}
+    TreeNode *node;
+    int i = 0;
+    while (!my_queue.empty()) {
+        node = my_queue.front();
+        my_queue.pop();
 
+        ++i;
+        if (i >= inputs.size())
+            break;
 
-vector<int> inorderTraversal(TreeNode* root) {
-    vector<TreeNode*> s;
-    vector<int> result;
-
-    if (!root)
-        return result;
-
-    TreeNode* p=root;
-
-    while(p||!s.empty()){
-        if (p){
-            s.push_back(p);
-            p = p->left;
+        if (inputs[i] != null) {
+            node->left = new TreeNode(inputs[i]);
+            my_queue.push(node->left);
         }
-        else{
-            p = s.back();
-            s.pop_back();
-            result.push_back(p->val);
-            p=p->right;
+
+        ++i;
+        if (i >= inputs.size())
+            break;
+        if (inputs[i] != null) {
+            node->right = new TreeNode(inputs[i]);
+            my_queue.push(node->right);
         }
     }
-    return result;
+    return root;
 
 }
 
+struct Trunk
+{
+    Trunk *prev;
+    string str;
+
+    Trunk(Trunk *prev, string str)
+    {
+        this->prev = prev;
+        this->str = str;
+    }
+};
+
+// Helper function to print branches of the binary tree
+void showTrunks(Trunk *p)
+{
+    if (p == nullptr) {
+        return;
+    }
+
+    showTrunks(p->prev);
+    cout << p->str;
+}
+
+void printTree(TreeNode* root, Trunk *prev, bool isLeft)
+{
+    if (root == nullptr) {
+        return;
+    }
+
+    string prev_str = "    ";
+    Trunk *trunk = new Trunk(prev, prev_str);
+
+    printTree(root->right, trunk, true);
+
+    if (!prev) {
+        trunk->str = "---";
+    }
+    else if (isLeft)
+    {
+        trunk->str = "/---";
+        prev_str = "   |";
+    }
+    else {
+        trunk->str = "\\---";
+        prev->str = prev_str;
+    }
+
+    showTrunks(trunk);
+    cout << " " << root->val << endl;
+
+    if (prev) {
+        prev->str = prev_str;
+    }
+    trunk->str = "   |";
+
+    printTree(root->left, trunk, false);
+}
+
+ListNode* stringToListNode(vector<int> &list) {
+    // Now convert that list into linked list
+    ListNode* dummyRoot = new ListNode(0);
+    ListNode* ptr = dummyRoot;
+    for(int item : list) {
+        ptr->next = new ListNode(item);
+        ptr = ptr->next;
+    }
+    ptr = dummyRoot->next;
+    delete dummyRoot;
+    return ptr;
+}
+
+void printListNodes(struct ListNode* head) {
+    int i;
+    struct ListNode* p;
+    for (p = head, i = 0; p != nullptr && i < 20; p = p->next, ++i)
+        printf("%d -> ", p->val);
+    printf("null\n");
+}
+
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> answer;
+        vector<pair<TreeNode*, int>> my_stack;
+        my_stack.emplace_back(root, 0);
+        pair<TreeNode*, int> cur;
+
+        while (!my_stack.empty()){
+            cur = my_stack.back();
+            my_stack.pop_back();
+
+            if (cur.first == nullptr)
+                continue;
+
+            if (cur.second == 0){
+                my_stack.emplace_back((cur.first)->right, 0);
+                my_stack.emplace_back(cur.first, 1);
+                my_stack.emplace_back((cur.first)->left, 0);
+            }
+            else{
+                answer.push_back((cur.first)->val);
+            }
+        }
+        return answer;
+    }
+};
 int main() {
-    int a[] = {1, null, 2, null, null, 3};
-    struct TreeNode* root = createTree(a, sizeof(a)/sizeof(a[0]));
-    printVector(inorderTraversal(root));
-
-    return 0;
+    setvbuf(stdout, NULL, _IONBF, 0);
+    vector<int> root_ = {1,null,2,3};
+    TreeNode* root = createTree(root_);
+    printTree(root, nullptr, false);
+    vector<int> answer = Solution().inorderTraversal(root);
+    printVector(answer);
 }
