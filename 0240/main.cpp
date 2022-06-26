@@ -11,6 +11,27 @@ using namespace std;
 
 #define null (-99)
 
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+template<typename T>
+void printVector(const T& t) {
+    cout << "[";
+    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
+    cout << "], ";
+}
+
+template<typename T>
+void printVectorInVector(const T& t) {
+    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
+}
+
 struct TreeNode {
     int val;
     TreeNode *left;
@@ -19,40 +40,6 @@ struct TreeNode {
     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
 };
-
-
-class Solution {
-public:
-    bool searchMatrix(vector<vector<int>>& matrix, int target) {
-        return checkMatrix(matrix, target, 0, matrix[0].size() - 1);
-    }
-
-    bool checkMatrix(vector<vector<int>>& matrix, int target, int start_i, int start_j){
-        int val = matrix[start_i][start_j];
-
-//        cout << "matrix[" << start_i << ", " << start_j << "] = " << val << endl;
-        if (val > target)
-            return start_j - 1 >= 0 && checkMatrix(matrix, target, start_i, start_j - 1);
-
-        if (val == target)
-            return true;
-
-        if (val < target)
-            return start_i + 1 < matrix.size() && checkMatrix(matrix, target, start_i + 1, start_j);
-        return false;
-    }
-};
-
-
-template<typename T>
-void printVector(const T& t) {
-    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
-}
-
-template<typename T>
-void printVectorInVector(const T& t) {
-    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
-}
 
 TreeNode* createTree(vector<int>& inputs){
     queue<TreeNode*> my_queue;
@@ -144,10 +131,56 @@ void printTree(TreeNode* root, Trunk *prev, bool isLeft)
     printTree(root->left, trunk, false);
 }
 
+ListNode* stringToListNode(vector<int> &list) {
+    // Now convert that list into linked list
+    ListNode* dummyRoot = new ListNode(0);
+    ListNode* ptr = dummyRoot;
+    for(int item : list) {
+        ptr->next = new ListNode(item);
+        ptr = ptr->next;
+    }
+    ptr = dummyRoot->next;
+    delete dummyRoot;
+    return ptr;
+}
 
-int main(){
-    vector<vector<int>> matrix = {{1,4,7,11,15},{2,5,8,12,19},{3,6,9,16,22},{10,13,14,17,24},{18,21,23,26,30}};
+void printListNodes(struct ListNode* head) {
+    int i;
+    struct ListNode* p;
+    for (p = head, i = 0; p != nullptr && i < 20; p = p->next, ++i)
+        printf("%d -> ", p->val);
+    printf("null\n");
+}
+
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        // 有效搜索区域为左下角坐标 [m-1, 0] 和 右上角坐标 [a, b] 所包围的矩形
+        int a, b;
+        int m = (int)matrix.size(), n = (int)matrix[0].size();
+        for (a = 0, b = n-1; a <= m-1 && b >= 0;){
+            if (matrix[a][b] == target)
+                return true;
+            else if (matrix[a][b] < target)
+                ++a;
+            else
+                --b;
+        }
+        return false;
+
+    }
+};
+
+int main() {
+    vector<vector<int>> matrix = {
+            {1,4,7,11,15},
+            {2,5,8,12,19},
+            {3,6,9,16,22},
+            {10,13,14,17,24},
+            {18,21,23,26,30}
+    };
     int target = 5;
+
     int answer = Solution().searchMatrix(matrix, target);
     cout << answer << endl;
 }
