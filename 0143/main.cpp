@@ -155,16 +155,17 @@ void printListNodes(struct ListNode* head) {
 class Solution {
 public:
     void reorderList(ListNode* head) {
-        ListNode* fast, *slow;
+        if (head == nullptr || head->next == nullptr) return;
+        ListNode* fast, *slow, *pre_slow;
 
-        // slow 指向的那一半比左侧长度来说，或者长度+1，或者长度相同
-        for (fast = slow = head; fast != nullptr && fast->next != nullptr; fast = fast->next->next, slow = slow->next);
+        // 此时链表长度至少为 2
+        // slow 指向的那一半比左侧长度来说，或者长度+1（总长度为奇数），或者长度相同（总长度为偶数）
+        // pre_slow 指向 slow 前面的元素
+        for (fast = slow = head; fast != nullptr && fast->next != nullptr; fast = fast->next->next, slow = slow->next)
+            pre_slow = slow;
 
-        // tmp 指向的那一半比左侧长度来说，或者长度-1，或者长度相同
-        // 这是为了执行 slow->next。否则（tmp 指向的那一半较短）原始链表为 1 的话，比较折腾
-        ListNode* tmp = slow->next;
-        slow->next = nullptr;
-        ListNode* reverse = reverseList(tmp);
+        pre_slow->next = nullptr;
+        ListNode* reverse = reverseList(slow);
 
         ListNode *fake_head = new ListNode(0);
         ListNode *tail = fake_head;
