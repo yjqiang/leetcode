@@ -23,32 +23,39 @@ struct TreeNode {
 
 class Solution {
 public:
-    bool self_findP;
-    TreeNode* self_result;
+    TreeNode* answer;
+    bool findP;
+
     TreeNode* inorderSuccessor(TreeNode* root, TreeNode* p) {
-        self_result = nullptr;
-        self_findP = false;
-        doneJob(root, p);
-        return self_result;
+        answer = nullptr;
+        findP = false;
+        mid(root, p);
+        return answer;
     }
 
-    bool doneJob(TreeNode *root, TreeNode* p){
-        if (root == nullptr)
-            return false;
-        if (doneJob(root->left, p))
-            return true;
-        if (self_findP && self_result == nullptr) {
-            self_result = root;
-            return true;
-        }
-        if (root == p)
-            self_findP = true;
+    // 注意没有利用二分搜索树的性质，应该性能会比较差
+    void mid(TreeNode* root, TreeNode* p){
+        // 有结果了就不用继续搞了
+        if (root == nullptr || answer != nullptr)
+            return;
 
-        return doneJob(root->right, p);
+
+        // assert answer == nullptr
+        mid(root->left, p);
+
+        // 注意 answer == nullptr 要再判断一次，因为左子树的递归中，可能已经解决了 answer == nullptr 的问题
+        if (findP && answer == nullptr){
+            answer = root;
+            return;
+        }
+        if (root == p && !findP){
+            findP = true;
+        }
+
+        mid(root->right, p);
 
     }
 };
-
 
 template<typename T>
 void printVector(const T& t) {
