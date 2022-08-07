@@ -122,28 +122,50 @@ void printTree(TreeNode* root, Trunk *prev, bool isLeft)
 
 class BSTIterator {
 public:
-    vector<TreeNode*> self_stack;
-
+    vector<pair<TreeNode *, bool>> my_stack;
     BSTIterator(TreeNode* root) {
-        pushAllLeft(root);
+        my_stack.emplace_back(root, false);
+        keepPushBack();
     }
 
-    int next() {
-        TreeNode *node = self_stack.back();
-        self_stack.pop_back();
-        int result = node->val;
+    void keepPushBack() {
+        while (!my_stack.empty()){
+            pair<TreeNode *, bool> p = my_stack.back();
 
-        pushAllLeft(node->right);
-        return result;
+
+            if (p.first == nullptr){
+                my_stack.pop_back();
+                continue;
+            }
+
+
+            if (!p.second){
+                my_stack.pop_back();
+                my_stack.emplace_back(p.first->right, false);
+                my_stack.emplace_back(p.first, true);
+                my_stack.emplace_back(p.first->left, false);
+            }
+            else
+                break;
+
+        }
+    }
+
+    // 保证开头一定是 p.second == 1
+    // visited 之后，不要忘记为下一 next 做准备
+    int next() {
+        pair<TreeNode *, bool> p = my_stack.back();
+        my_stack.pop_back();
+
+        keepPushBack();
+
+        return p.first->val;
+
     }
 
     bool hasNext() {
-        return !self_stack.empty();
-    }
+        return !my_stack.empty();
 
-    void pushAllLeft(TreeNode* root){
-        for (;root != nullptr; root = root->left)
-            self_stack.push_back(root);
     }
 };
 
