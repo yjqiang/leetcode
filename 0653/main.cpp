@@ -120,47 +120,81 @@ void printTree(TreeNode* root, Trunk *prev, bool isLeft)
     printTree(root->left, trunk, false);
 }
 
-class Iterator{
+class BSTIterator {
 public:
-    vector<TreeNode*> self_stack;
-    bool self_real_next;
+    vector<pair<TreeNode *, bool>> my_stack;
+    bool my_left_first;
 
-    Iterator(bool real_next, TreeNode* root){
-        self_real_next = real_next;
-        pushAllLeft(root);
+    BSTIterator(TreeNode* root, bool left_first) {
+        my_left_first = left_first;
+        my_stack.emplace_back(root, false);
+        keepPushBack();
     }
 
-    bool hasNext(){
-        return !self_stack.empty();
+    void keepPushBack() {
+        while (!my_stack.empty()){
+            pair<TreeNode *, bool> p = my_stack.back();
+
+
+            if (p.first == nullptr){
+                my_stack.pop_back();
+                continue;
+            }
+
+
+            if (!p.second){
+                my_stack.pop_back();
+
+                if (my_left_first) {
+                    my_stack.emplace_back(p.first->right, false);
+                    my_stack.emplace_back(p.first, true);
+                    my_stack.emplace_back(p.first->left, false);
+                }
+                else{
+                    my_stack.emplace_back(p.first->left, false);
+                    my_stack.emplace_back(p.first, true);
+                    my_stack.emplace_back(p.first->right, false);
+                }
+            }
+            else
+                break;
+
+        }
     }
 
-    int next(){
-        TreeNode* node = self_stack.back();
-        self_stack.pop_back();
-        pushAllLeft((self_real_next)?node->right: node->left);
-        return node->val;
+    // 保证开头一定是 p.second == 1
+    // visited 之后，不要忘记为下一 next 做准备
+    TreeNode * next() {
+        pair<TreeNode *, bool> p = my_stack.back();
+        my_stack.pop_back();
+
+        keepPushBack();
+
+        return p.first;
+
     }
 
-    void pushAllLeft(TreeNode* root){
-        for (;root != nullptr; root = (self_real_next)?root->left: root->right)
-            self_stack.push_back(root);
+    bool hasNext() {
+        return !my_stack.empty();
+
     }
 };
 
 class Solution {
 public:
+    // 设置两个指针，一个从左到右，一个从右到左
     bool findTarget(TreeNode* root, int k) {
-        Iterator i = Iterator(true, root);
-        Iterator j = Iterator(false, root);
+        BSTIterator i = BSTIterator(root, true);
+        BSTIterator j = BSTIterator(root, false);
 
-        int val_i, val_j;
-        for (val_i = i.next(), val_j = j.next(); val_i < val_j;){
-            if (val_i + val_j < k){
+        TreeNode * val_i, *val_j;
+        for (val_i = i.next(), val_j = j.next(); val_i != val_j;){
+            if (val_i->val + val_j->val < k){
                 if (!i.hasNext())
                     return false;
                 val_i = i.next();
             }
-            else if (val_i + val_j > k){
+            else if (val_i->val + val_j->val > k){
                 if (!j.hasNext())
                     return false;
                 val_j = j.next();
