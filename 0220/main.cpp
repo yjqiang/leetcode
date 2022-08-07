@@ -34,41 +34,51 @@ void printVectorInVector(const T& t) {
 class Solution {
 public:
     bool containsNearbyAlmostDuplicate(vector<int>& nums, int k, int t) {
-        unordered_map<int, int> buckets;
-        if ((int)nums.size() == 0 || k == 0)
-            return false;
+        unordered_map<long long, long long> buckets;
+        int i;
+        long long num;
+        for (i = 0; i < nums.size(); ++i) {
+            num = (long long)nums[i];
 
-        int cur, bucket;
-        for (int i = 0; i < nums.size(); ++i){
-            cur = nums[i];
-            bucket = getBucket(cur, t);
+            long long bucket = getBucket(num, (long long)t);
+
+            // 虽然还没执行 buckets[bucket] = num （防止 buckets.find(bucket) != buckets.end() 判定出错）
+            // 但实际已经入 buckets 了
+            if (buckets.size()+1 > k+1) {
+                // 类似于滑动窗口
+                // 把左侧在窗口外的元素删了
+                long long bucket_to_delete = getBucket(nums[i - k - 1], t);
+                buckets.erase(bucket_to_delete);
+            }
+
+            // 在同一个桶里，一定OK
             if (buckets.find(bucket) != buckets.end())
                 return true;
 
-            buckets[bucket] = cur;
-            if (buckets.find(bucket - 1) != buckets.end() && (long long)cur - buckets[bucket - 1] <= t)
+            // 相邻桶，可能 OK
+            if (buckets.find(bucket+1) != buckets.end() && abs(buckets[bucket+1] - num) <= t)
                 return true;
-            if (buckets.find(bucket + 1) != buckets.end() && (long long)buckets[bucket + 1] - cur  <= t)
+            if (buckets.find(bucket-1) != buckets.end() && abs(buckets[bucket-1] - num) <= t)
                 return true;
 
-            if (buckets.size() > k){
-                bucket = getBucket(nums[i-k], t);
-                buckets.erase(bucket);
-            }
+            buckets[bucket] = num;
         }
+
         return false;
+
     }
 
-    int getBucket(int num, int t){
-        return num >= 0? (num / ((long long)t + 1)) :((num + 1) / ((long long)t + 1) - 1);
+    long long getBucket(long long num, long long t){
+        return num >= 0? num / (t+1): ((num+1) / (t+1) - 1);
     }
 };
 
 
+
 int main(){
-    vector<int> nums = {1,0,1,1};
-    int k = 1;
-    int t = 2;
+    vector<int> nums = {1,5,9,1,5,9};
+    int k = 2;
+    int t = 3;
     int result = Solution().containsNearbyAlmostDuplicate(nums, k, t);
     cout << result << endl;
 
