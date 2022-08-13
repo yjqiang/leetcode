@@ -23,61 +23,60 @@ void printVectorInVector(const T& t) {
 }
 
 
-class MyNode{
-public:
-    vector<MyNode*> self_next;
-    bool self_isWordEnd;
-    int child_count;
 
-    MyNode(){
-        self_next = vector<MyNode*>(26);
-        self_isWordEnd = false;
-        child_count = 0;
+class WordTreeNode{
+public:
+    vector<WordTreeNode*> children;
+    int count;
+
+    WordTreeNode(){
+        children = vector<WordTreeNode*>(26, nullptr);
+        count = 0;
     }
 };
 
 
 class Solution {
 public:
+    WordTreeNode* root;
+
     int minimumLengthEncoding(vector<string>& words) {
-        MyNode* self_root = new MyNode();
-        self_root->self_isWordEnd = false;
+        root = new WordTreeNode();
 
-        unordered_map<MyNode*, int> leaf_nodes;
+        unordered_map<WordTreeNode*, int> nodes;
 
-        int i, k;
-        int char_index;
-        MyNode* cur;
-        string word;
+
+        for (auto& word : words)
+            nodes[insert(word)] = (int)word.size();
+
         int answer = 0;
-        for (i = 0; i < words.size(); i++) {
-            word = words[i];
-            for (k = int(word.size())-1, cur = self_root; k >= 0; --k) {
-                char_index = word[k] - 'a';
-
-                if (cur->self_next[char_index] != nullptr){
-                    cur = cur->self_next[char_index];
-                }
-                else {
-                    cur->self_next[char_index] = new MyNode();
-                    cur->child_count += 1;
-                    cur = cur->self_next[char_index];
-                }
-            }
-            cur->self_isWordEnd = true;
-            leaf_nodes[cur] = int(word.size()) + 1;
+        for (auto& node : nodes){
+            // 某单词对应的最后节点（这里对应单词首个字母）仅仅访问了一次，则这是个叶子节点
+            if (node.first->count == 0)
+                answer += node.second + 1;
         }
-
-
-        for (auto it = leaf_nodes.begin(); it != leaf_nodes.end(); ++it){
-            if (it->first->child_count == 0)
-                answer += it->second;
-        }
-
         return answer;
+    }
 
+    // 返回单词对应的最后节点，并把沿途节点计数 +1；
+    // 这样若途径某单词的结尾节点，则该节点所对应的单词长度，不计入最终结果（可以覆盖此单词）
+    WordTreeNode* insert(string &word){
+        WordTreeNode* cur = root;
+        int i;
+        int index;
+        for (i = (int)word.size() - 1; i >= 0; i--, cur = cur->children[index]){
+            index = word[i]-'a';
+            // 这说明 cur 可能是个叶子节点
+            if (cur->children[index] == nullptr) {
+                ++(cur->count);
+                cur->children[index] = new WordTreeNode();
+            }
+        }
+        return cur;
     }
 };
+
+
 
 int main(){
     vector<string> words = {"me", "time", "bell"};
