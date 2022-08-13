@@ -23,93 +23,74 @@ void printVectorInVector(const T& t) {
 }
 
 
-class MyNode{
+class TrieNode {
 public:
-    vector<MyNode*> self_next;
-    bool self_isWordEnd;
+    vector<TrieNode*> children;
+    bool is_end;
 
-    MyNode(){
-        self_next = vector<MyNode*>(26);
-        self_isWordEnd = false;
+    TrieNode() {
+        is_end = false;
+        children = vector<TrieNode*>(26, nullptr);
+    }
+};
+
+class Trie {
+public:
+    TrieNode* root;
+    /** Initialize your data structure here. */
+    Trie() {
+        root = new TrieNode();
+
+    }
+
+    /** Inserts a word into the trie. */
+    void insert(string &word) {
+        TrieNode* cur;
+        int i;
+        int cur_char_index;
+        for (cur = root, i = 0; i < word.size(); ++i, cur = cur->children[cur_char_index]){
+            cur_char_index = word[i]-'a';
+            if (cur->children[cur_char_index] == nullptr)
+                cur->children[cur_char_index] = new TrieNode();
+        }
+        cur->is_end = true;
+    }
+
+    bool search(string &word, int index, TrieNode *cur, int resisted) {
+        if (resisted > 1) return false;
+
+        if (index >= word.size()) return cur->is_end && resisted == 1;
+
+        int cur_char_index = word[index]-'a';
+        int cur_resisted;
+        for (int i = 0; i < 26; ++i) {
+            if (cur->children[i] != nullptr) {
+                cur_resisted = (cur_char_index == i)? resisted: resisted+1;
+                if (search(word, index+1, cur->children[i], cur_resisted))
+                    return true;
+            }
+        }
+        return false;
     }
 };
 
 class MagicDictionary {
 public:
-    MyNode* self_root;
-
+    Trie trie;
     /** Initialize your data structure here. */
     MagicDictionary() {
-        self_root = new MyNode();
-        self_root->self_isWordEnd = false;
+        trie = Trie();
     }
 
     void buildDict(vector<string> dictionary) {
-        int i, k;
-        int char_index;
-        MyNode* cur;
-        string word;
-        for (i = 0; i < dictionary.size(); i++) {
-            word = dictionary[i];
-            for (k = 0, cur = self_root; k < word.size(); ++k) {
-                char_index = word[k] - 'a';
-                if (cur->self_next[char_index] != nullptr)
-                    cur = cur->self_next[char_index];
-                else {
-                    cur->self_next[char_index] = new MyNode();
-                    cur = cur->self_next[char_index];
-                }
-            }
-            cur->self_isWordEnd = true;
-        }
-
-    }
-
-    bool searchWithoutReplace(string &word, int startIndex, MyNode *startNode) {
-        int char_index;
-        MyNode* cur;
-        int i;
-        for (i = startIndex, cur = startNode; i < word.size(); i++){
-            char_index = word[i] - 'a';
-            if (cur->self_next[char_index] != nullptr)
-                cur = cur->self_next[char_index];
-            else
-                return false;
-        }
-        return cur->self_isWordEnd;
-    }
-
-    bool searchWithReplace(string &word) {
-        int char_index;
-        int i;
-        MyNode* cur;
-        char charAfterCorrection, charOriginal;
-        for (i = 0, cur = self_root;i < word.size(); i++){
-            charOriginal = word[i];
-            // try to "fix"/replace word[i]
-            for (char_index = 0; char_index < 26; ++char_index){
-                charAfterCorrection = (char)('a' + char_index);
-                if (charAfterCorrection != charOriginal) {
-                    word[i] = charAfterCorrection;
-                    if (searchWithoutReplace(word, i, cur))
-                        return true;
-                }
-            }
-            if (cur->self_next[charOriginal-'a'] != nullptr)
-                cur = cur->self_next[charOriginal-'a'];
-            else
-                return false;
-            word[i] = charOriginal;
-        }
-
-        return false;
+        for (auto &word: dictionary)
+            trie.insert(word);
     }
 
     bool search(string searchWord) {
-        return searchWithReplace(searchWord);
+        return trie.search(searchWord, 0, trie.root, 0);
     }
 };
-
 
 int main(){
     MagicDictionary magicDictionary = *(new MagicDictionary());
