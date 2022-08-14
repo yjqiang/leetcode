@@ -22,60 +22,65 @@ void printVectorInVector(const T& t) {
     std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
 }
 
-class MyNode{
-public:
-    MyNode* self_next[2];
 
-    MyNode(){
-        self_next[0] = self_next[1] = nullptr;
+
+class WordTreeNode{
+public:
+    WordTreeNode* children[2];
+    int val;
+
+    WordTreeNode(){
+        children[0] = children[1] = nullptr;
     }
 };
 
 
 class Solution {
 public:
-    MyNode* self_root;
-    void buildTree(vector<int>&nums){
+    WordTreeNode* root;
 
-        self_root = new MyNode();
-        int i, k, num, cur_bit;
-        MyNode* cur_node;
-        for (i = 0; i < nums.size(); i++) {
-            num = nums[i];
-            for (k = 31, cur_node = self_root; k >= 0; --k) {
-                cur_bit = (num >> k) & 1;
-                if (cur_node->self_next[cur_bit] != nullptr)
-                    cur_node = cur_node->self_next[cur_bit];
-                else {
-                    cur_node->self_next[cur_bit] = new MyNode();
-                    cur_node = cur_node->self_next[cur_bit];
-                }
-            }
+
+    // 返回单词对应的最后节点，并把沿途节点计数 +1；
+    // 这样若途径某单词的结尾节点，则该节点所对应的单词长度，不计入最终结果（可以覆盖此单词）
+    void insert(int num){
+        WordTreeNode* cur = root;
+        int index;
+        int k;
+        for (k = 31; k >= 0; --k, cur = cur->children[index]){
+            index = (num >> k) & 1;
+            if (cur->children[index] == nullptr)
+                cur->children[index] = new WordTreeNode();
         }
+        cur->val = num;
     }
-    int findMaximumXOR(vector<int>& nums) {
-        buildTree(nums);
 
-        int first_num, target_bit;
-        MyNode* cur_node;
-        int i, k;
-        int max_answer = 0, cur_answer;
-        for (i = 0; i < nums.size(); i++){
-            first_num = nums[i];
-            cur_answer = 0;
-            for (k = 31, cur_node = self_root; k >= 0; --k) {
-                target_bit = 1 - ((first_num >> k) & 1);
-                if (cur_node->self_next[target_bit] != nullptr) {
-                    cur_answer = cur_answer | (1 << k);
-                    cur_node = cur_node->self_next[target_bit];
-                } else {
-//                    cur_answer = cur_answer | (0 << k);
-                    cur_node = cur_node->self_next[1 - target_bit];
-                }
-            }
-            max_answer = max(cur_answer, max_answer);
+    int findMaximumXORForOneNum(vector<int>& nums, int num){
+        WordTreeNode* cur = root;
+        int index;
+        int k;
+        for (k = 31; k >= 0; --k){
+            index = (num >> k) & 1;
+            // 因为越早找到某位 bit 数，其与 num 不同，获得的收益越大（异或结果）
+            // 找到这位 bit 后，在其后面的 bits 也尽量要和 num 的对应位保持不同，这样收益会更大
+            if (cur->children[1-index] != nullptr)
+                cur = cur->children[1-index];
+            else
+                cur = cur->children[index];
         }
-        return max_answer;
+        return (cur->val) ^ num;
+    }
+
+    int findMaximumXOR(vector<int>& nums) {
+        root = new WordTreeNode();
+
+
+        for (auto& num : nums)
+            insert(num);
+
+        int answer = 0;
+        for (auto& num : nums)
+            answer = max(answer, findMaximumXORForOneNum(nums, num));
+        return answer;
     }
 };
 
@@ -83,4 +88,5 @@ int main(){
     vector<int> nums = {3,10,5,25,2,8};
     int answer = Solution().findMaximumXOR(nums);
     cout << answer << endl;
+
 }
