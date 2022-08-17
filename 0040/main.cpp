@@ -1,87 +1,191 @@
-# include <cstdio>
-# include <cstring>
-# include <cstdlib>
-# include <climits>
-# include <cstdint>
-# include <vector>
-# include <unordered_map>
-#include <set>
-#include <unordered_set>
-#include <bitset>
 #include <iostream>
-
-# include "mystack.h"
-# include "myqueue.h"
-# include "mybinarytree.h"
-# include "mylinkedlist.h"
-# include "my.h"
+#include <vector>
+#include <string>
 #include <algorithm>
+#include <unordered_map>
+#include <unordered_set>
+#include <queue>
+#include <stdlib.h>
 
 using namespace std;
 
-#define null element_null
+#define null (-99)
 
-char* int2bin(int a, char* buffer, int buf_size) {
 
-    for (int i = 0; i < 32; i++) {
-        *(buffer + buf_size - i - 1) = (a & 1) + '0';
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
 
-        a >>= 1;
-    }
-    for (int i = 0; i < 32; i++)
-        if (i % 4 == 3)
-            printf("%c,", buffer[i]);
-        else
-            printf("%c", buffer[i]);
-    printf("\n");
-    return buffer;
+template<typename T>
+void printVector(const T& t) {
+    cout << "[";
+    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
+    cout << "], ";
 }
 
-
-
-void printUnorderedMap(unordered_map<int, int> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("map element: %d %d\n", i->first, i->second);
-    printf("............\n");
+template<typename T>
+void printVectorInVector(const T& t) {
+    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
 }
 
-void printVector(vector<int> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printf("vector element: %d\n", *i);
-    printf("............\n");
-}
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode() : val(0), left(nullptr), right(nullptr) {}
+    TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+    TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+};
 
-void print2dVector(vector<vector<int>> m) {
-    for (auto i = m.begin(); i != m.end(); ++i)
-        printVector(*i);
-    printf("----------------------\n");
-}
+TreeNode* createTree(vector<int>& inputs){
+    queue<TreeNode*> my_queue;
+    TreeNode* root = new TreeNode(inputs[0]);
+    my_queue.push(root);
 
-void func(vector<int>& candidates, int target, int begin, vector<vector<int>> &result, vector<int> &tmp){
-    if (!target){
-        result.push_back(tmp);
-        return;
-    }
-    for (int i = begin; i < candidates.size() && candidates[i] <= target; ++i){
-        if (i==begin || candidates[i]!=candidates[i-1]){
-            tmp.push_back(candidates[i]);
-            func(candidates, target-candidates[i], i+1, result, tmp);
-            tmp.pop_back();
+    TreeNode *node;
+    int i = 0;
+    while (!my_queue.empty()) {
+        node = my_queue.front();
+        my_queue.pop();
+
+        ++i;
+        if (i >= inputs.size())
+            break;
+
+        if (inputs[i] != null) {
+            node->left = new TreeNode(inputs[i]);
+            my_queue.push(node->left);
+        }
+
+        ++i;
+        if (i >= inputs.size())
+            break;
+        if (inputs[i] != null) {
+            node->right = new TreeNode(inputs[i]);
+            my_queue.push(node->right);
         }
     }
-    return;
+    return root;
+
 }
 
-vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
-    vector<vector<int>> result;
-    vector<int> tmp;
-    sort(candidates.begin(),candidates.end());
-    func(candidates, target, 0, result, tmp);
-    return result;
+struct Trunk
+{
+    Trunk *prev;
+    string str;
+
+    Trunk(Trunk *prev, string str)
+    {
+        this->prev = prev;
+        this->str = str;
+    }
+};
+
+// Helper function to print branches of the binary tree
+void showTrunks(Trunk *p)
+{
+    if (p == nullptr) {
+        return;
+    }
+
+    showTrunks(p->prev);
+    cout << p->str;
 }
+
+void printTree(TreeNode* root, Trunk *prev, bool isLeft)
+{
+    if (root == nullptr) {
+        return;
+    }
+
+    string prev_str = "    ";
+    Trunk *trunk = new Trunk(prev, prev_str);
+
+    printTree(root->right, trunk, true);
+
+    if (!prev) {
+        trunk->str = "---";
+    }
+    else if (isLeft)
+    {
+        trunk->str = "/---";
+        prev_str = "   |";
+    }
+    else {
+        trunk->str = "\\---";
+        prev->str = prev_str;
+    }
+
+    showTrunks(trunk);
+    cout << " " << root->val << endl;
+
+    if (prev) {
+        prev->str = prev_str;
+    }
+    trunk->str = "   |";
+
+    printTree(root->left, trunk, false);
+}
+
+ListNode* stringToListNode(vector<int> &list) {
+    // Now convert that list into linked list
+    ListNode* dummyRoot = new ListNode(0);
+    ListNode* ptr = dummyRoot;
+    for(int item : list) {
+        ptr->next = new ListNode(item);
+        ptr = ptr->next;
+    }
+    ptr = dummyRoot->next;
+    delete dummyRoot;
+    return ptr;
+}
+
+void printListNodes(struct ListNode* head) {
+    int i;
+    struct ListNode* p;
+    for (p = head, i = 0; p != nullptr && i < 20; p = p->next, ++i)
+        printf("%d -> ", p->val);
+    printf("null\n");
+}
+class Solution {
+public:
+    vector<vector<int>> combinationSum2(vector<int>& candidates, int target) {
+        sort(candidates.begin(), candidates.end());
+        vector<vector<int>> answer;
+        vector<int> tmp;
+        subset(answer, tmp, candidates, target, 0);
+        return answer;
+    }
+
+
+    void subset(vector<vector<int>> &answer, vector<int>& tmp, vector<int>& candidates, int target, int start) {
+        if (target < 0)
+            return;
+        if (target == 0){
+            answer.push_back(tmp);
+            return;
+        }
+
+        int i;
+        for (i = start; i < candidates.size(); ++i){
+            if (i == start || candidates[i] != candidates[i-1]) {
+                tmp.push_back(candidates[i]);
+                subset(answer, tmp, candidates, target - candidates[i], i + 1);
+                tmp.pop_back();
+            }
+        }
+    }
+};
 
 int main() {
+//    vector<int> nums = {1,1,1,2,2,3};
+//    int k = 2;
+
     vector<int> a = {10,1,2,7,6,1,5};
-    print2dVector(combinationSum2(a, 8));
+    printVectorInVector(Solution().combinationSum2(a, 8));
     return 0;
 }
