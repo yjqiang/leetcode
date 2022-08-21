@@ -6,6 +6,8 @@
 #include <map>
 #include <queue>
 #include <cstdlib>
+#include <sstream>
+#include <unordered_set>
 
 using namespace std;
 
@@ -62,33 +64,39 @@ class Solution {
 public:
     bool isBipartite(vector<vector<int>>& graph) {
         int n = (int)graph.size();
-        vector<int> colors(n, 0);
+        // 0 为未被访问，被访问后，赋值为 -1、1 这两种不同的颜色
+        vector<int> visited(n, 0);
         int i;
-        for (i = 0; i < n; ++i)
-            if (colors[i] == 0)
-                if (!dfs(graph, colors, i, 1))
+        for (i = 0; i < n; ++i) {
+            if (visited[i] == 0) {
+                // 这一定是一个独立的连通子图，visited[start] 可以赋值 1 或者 -1，与其他连通子图互不影响！！
+                visited[i] = 1;
+                if (!isBipartite_(graph, visited, i))
                     return false;
+            }
+        }
         return true;
     }
 
-    bool dfs(vector<vector<int>>& graph, vector<int> &colors, int cur_i, int wanted_color){
-        // wanted_color == -1 or wanted_color == 1
-        if (colors[cur_i] != 0)
-            return colors[cur_i] == wanted_color;
-        colors[cur_i] = wanted_color;
-
-        int i;
-        int n = (int)graph[cur_i].size();
-        for (i = 0; i < n; ++i)
-            // visit all adjacent
-            if (!dfs(graph, colors, graph[cur_i][i], -wanted_color))
+    // 本质是遍历所有的边，把边的两端点进行染色
+    bool isBipartite_(vector<vector<int>>& graph, vector<int> &visited, int cur) {
+        for (auto &neighbour: graph[cur]) {
+            if (visited[neighbour] == 0) {
+                // 邻接点被赋予相反的颜色
+                visited[neighbour] = -visited[cur];
+                if (!isBipartite_(graph, visited, neighbour))
+                    return false;
+            }
+            // 若该点已被染色了，要查看是否色彩矛盾
+            else if (visited[neighbour] == visited[cur])
                 return false;
+        }
         return true;
     }
 };
 
 int main(){
-    vector<vector<int>> graph = {{1,3},{0,2},{1,3},{0,2}};
+    vector<vector<int>> graph = {{1,2,3},{0,2},{0,1,3},{0,2}};
     int answer = Solution().isBipartite(graph);
     cout << answer << endl;
 }
