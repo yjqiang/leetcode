@@ -1,144 +1,89 @@
+// 在线面试平台。将链接分享给你的朋友以加入相同的房间。
+// Author: tdzl2003<dengyun@meideng.net>
+// QQ-Group: 839088532
 #include <iostream>
 #include <vector>
-#include <string>
-#include <algorithm>
-#include <unordered_map>
-#include <map>
-#include <set>
-#include <unordered_set>
 #include <queue>
-#include <cstdlib>
+#include <unordered_map>
 
 using namespace std;
 
 
-#define null (-99)
-
-template<typename T>
-void printVector(const T& t) {
-    printf("[");
-    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
-    printf("], ");
-}
-
-template<typename T>
-void printVectorInVector(const T& t) {
-    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
-}
-
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
-
-ListNode* createListNode(vector<int> &a) {
-    ListNode *p;
-    ListNode *head, *tail;
-
-    head = new ListNode();
-    head->val = a[0];
-    head->next = nullptr;
-
-    int i;
-    for (i = 1, tail = head; i < a.size(); ++i) {
-        p = new ListNode();
-        p->val = a[i];
-        tail->next = p;
-        tail = p;
-    }
-    tail->next = nullptr;
-    return head;
-}
-
-
-void printListNodes(ListNode* head) {
-    for (ListNode* p = head; p != nullptr; p = p->next)
-        printf("%d -> ", p->val);
-    printf("NULL\n");
-}
-
 class Solution {
 public:
+    bool cmp(string &a, string &b, vector<vector<int>> &graph, unordered_map<int, int> &inDegrees) {
+        int i;
+        for (i = 0; i < a.size() && i < b.size(); i++) {
+            if (a[i] != b[i]) {
+                graph[a[i] - 'a'].push_back(b[i] - 'a');
+                ++inDegrees[b[i] - 'a'];
+                return true;
+            }
+        }
+        // mdzz
+        // {"abc","ab"} => ""
+        return a.size() <= b.size();
+    }
+
     string alienOrder(vector<string>& words) {
-        // create graph
-        int i, k, n = (int)words.size();
+        string a, b;
+        int i, j;
+        vector<vector<int>> graph(26);
+        unordered_map<int, int> inDegrees;
 
-        // if no such char, inDegree[char] == -1
-        // else, inDegree[char] >= 0
-        vector<int> inDegree(26, -1);
-        unordered_map<char, vector<char>> graph;
+        // vocab
+        for (string &word : words)
+            for (char c: word)
+                inDegrees[c-'a'] = 0;
 
-        string string_cur, string_pre;
-        char char_cur, char_pre;
-        for (i = 0; i < words.size(); ++i){
-            string_cur = words[i];
-            for (k = 0; k < string_cur.size(); ++k)
-                inDegree[string_cur[k] - 'a'] = 0;
+        int vocab_size = (int)inDegrees.size();
+
+        // 建图
+        for (i = 1; i < words.size(); i++) {
+            a = words[i-1];
+            b = words[i];
+
+            if (!cmp(a, b, graph, inDegrees))
+                return "";
         }
 
-        // how many chars
-        int char_num = 0;
-        for (i = 0; i < 26; ++i)
-            if (inDegree[i] != -1)
-                ++char_num;
-
-        // create graph
-        string_pre = words[0];
-        for (i = 1; i < words.size(); ++i){
-            string_cur = words[i];
-            for (k = 0; k < string_pre.size() && k < string_cur.size(); ++k){
-                char_pre = string_pre[k];
-                char_cur = string_cur[k];
-                if (char_pre != char_cur){
-                    ++inDegree[char_cur-'a'];
-                    graph[char_pre].push_back(char_cur);
-                    break;
-                }
-            }
-
-            // mdzz
-            // {"abc","ab"} => ""
-            if (k == string_pre.size() || k == string_cur.size())
-                if (string_pre.size() > string_cur.size())
-                    return "";
-            string_pre = string_cur;
-        }
-
-
+        // 拓扑排序
         string answer;
-        vector<char> my_queue;
-        for (i = 0; i < 26; ++i)
-            if (inDegree[i] == 0) {
-                char_cur = (char) (i + 'a');
-                my_queue.push_back(char_cur);
-                answer += char_cur;
+        queue<int> my_queue;
+
+        for (auto &key_value: inDegrees)
+            if (key_value.second == 0) {
+                my_queue.push(key_value.first);
+                answer += char('a'+key_value.first);
             }
 
-        char char_adjacent;
-        while(!my_queue.empty()){
-            char_cur = my_queue.back();
-            my_queue.pop_back();
+        while (!my_queue.empty()) {
+            int cur = my_queue.front();
+            my_queue.pop();
 
-            for (i = 0; i < graph[char_cur].size(); ++i){
-                char_adjacent = graph[char_cur][i];
-                if (!(--inDegree[char_adjacent-'a'])){
-                    my_queue.push_back(char_adjacent);
-                    answer += char_adjacent;
+            for (int neighbour: graph[cur]){
+                --inDegrees[neighbour];
+                if (inDegrees[neighbour] == 0) {
+                    my_queue.push(neighbour);
+                    answer += ('a'+neighbour);
                 }
             }
         }
-        if (answer.size() == char_num)
+
+        if (answer.size() == vocab_size)
             return answer;
         return "";
+
     }
+
+
 };
 
-int main(){
-    vector<string> words = {"abc","ab"};
 
+int main(){
+    vector<string> words = {"aab","ab","b"};
     string answer = Solution().alienOrder(words);
     cout << answer << endl;
+
+    return 0;
 }
