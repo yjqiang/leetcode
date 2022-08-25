@@ -1,131 +1,66 @@
+// 在线面试平台。将链接分享给你的朋友以加入相同的房间。
+// Author: tdzl2003<dengyun@meideng.net>
+// QQ-Group: 839088532
 #include <iostream>
 #include <vector>
-#include <string>
-#include <algorithm>
-#include <unordered_map>
-#include <map>
-#include <set>
-#include <unordered_set>
 #include <queue>
-#include <cstdlib>
+#include <unordered_map>
 
 using namespace std;
 
 
-#define null (-99)
-
-template<typename T>
-void printVector(const T& t) {
-    printf("[");
-    std::copy(t.cbegin(), t.cend(), std::ostream_iterator<typename T::value_type>(std::cout, ", "));
-    printf("], ");
-}
-
-template<typename T>
-void printVectorInVector(const T& t) {
-    std::for_each(t.cbegin(), t.cend(), printVector<typename T::value_type>);
-}
-
-struct ListNode {
-    int val;
-    ListNode *next;
-    ListNode() : val(0), next(nullptr) {}
-    ListNode(int x) : val(x), next(nullptr) {}
-    ListNode(int x, ListNode *next) : val(x), next(next) {}
-};
-
-ListNode* createListNode(vector<int> &a) {
-    ListNode *p;
-    ListNode *head, *tail;
-
-    head = new ListNode();
-    head->val = a[0];
-    head->next = nullptr;
-
-    int i;
-    for (i = 1, tail = head; i < a.size(); ++i) {
-        p = new ListNode();
-        p->val = a[i];
-        tail->next = p;
-        tail = p;
-    }
-    tail->next = nullptr;
-    return head;
-}
-
-
-void printListNodes(ListNode* head) {
-    for (ListNode* p = head; p != nullptr; p = p->next)
-        printf("%d -> ", p->val);
-    printf("NULL\n");
-}
-
 class Solution {
 public:
-    bool sequenceReconstruction(vector<int>& org, vector<vector<int>>& seqs) {
-        int n = (int)org.size();
-        int i, k;
+    bool sequenceReconstruction(vector<int>& nums, vector<vector<int>>& sequences) {
+        string a, b; int i; int n = int(nums.size());
+        vector<vector<int>> graph(n+1);
+        vector<int> inDegrees(n+1);
 
-        unordered_set<int> my_set;
-        for (i = 0; i < seqs.size(); ++i)
-            for (k = 0; k < seqs[i].size(); ++k)
-                my_set.insert(seqs[i][k]);
-
-        // eg: vector<int> org = {1}; vector<vector<int>> seqs = {{2}};  => false
-        // eg: vector<int> org = {1}; vector<vector<int>> seqs = {};  => false
-        // eg: [5,3,2,4,1], [[5,3,2,4],[4,1],[1],[3],[2,4],[1000000000]] => false
-        if(my_set.find(n) == my_set.end() || my_set.size() != n)
-            return false;
-
-        vector<int> inDegree(n+1, 0);
-        vector<vector<int>> graph(n+1, vector<int>());
-
-        for (i = 0; i < seqs.size(); ++i) {
-            for (k = 1; k < seqs[i].size(); ++k) {
-                graph[seqs[i][k - 1]].push_back(seqs[i][k]);
-                ++inDegree[seqs[i][k]];
+        // 建图
+        for (vector<int> & sequence: sequences)
+            for (i = 1; i < sequence.size(); ++i) {
+                graph[sequence[i - 1]].push_back(sequence[i]);
+                ++inDegrees[sequence[i]];
             }
-        }
 
-        // len(the result of topological sorting)
-        int count = 0;
-        vector<int> my_stack;
+        // 拓扑排序
+        queue<int> my_queue;
+
         for (i = 1; i <= n; ++i)
-            if (!inDegree[i]) {
-                my_stack.push_back(i);
-                if (org[count] != i)
-                    return false;
-                ++count;
-            }
+            if (inDegrees[i] == 0)
+                my_queue.push(i);
 
-        int cur, adjacent;
-
-        while(!my_stack.empty()){
-            if (my_stack.size() != 1)
+        i = 0;
+        while (!my_queue.empty()) {
+            // assert my_queue.size() == 1
+            // 每一层必须都是 1，否则说明有多个解（此时队列里面有多个点，入度为 0，则输出的拓扑排序结果可以多种）
+            if (my_queue.size() != 1)
                 return false;
 
-            cur = my_stack.back();
-            my_stack.pop_back();
+            // for (int t = 0; t < my_queue.size(); ++t)
+            int cur = my_queue.front();
+            my_queue.pop();
 
-            for (i = 0; i < graph[cur].size(); ++i){
-                adjacent = graph[cur][i];
-                if (!(--inDegree[adjacent])){
-                    my_stack.push_back(adjacent);
-                    if (org[count] != adjacent)
-                        return false;
-                    ++count;
-                }
+            if (cur != nums[i])
+                return false;
+            ++i;
+
+            for (int neighbour: graph[cur]) {
+                --inDegrees[neighbour];
+                if (inDegrees[neighbour] == 0)
+                    my_queue.push(neighbour);
             }
         }
-
-        return count == n;
+        return i == n;
     }
 };
 
-int main(){
-    vector<int> org = {1};
-    vector<vector<int>> seqs = {};
 
-    int answer = Solution().sequenceReconstruction(org, seqs);
+int main(){
+    vector<int> nums = {1,2,3};
+    vector<vector<int>> t = {{1,2},{1,3},{2,3}};
+    bool answer = Solution().sequenceReconstruction(nums, t);
     cout << answer << endl;
+
+    return 0;
 }
