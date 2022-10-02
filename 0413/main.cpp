@@ -165,7 +165,7 @@ public:
         vector<int> dp(n);
         dp[0] = dp[1] = 0;
         for (int i = 2; i < nums.size(); i++) {
-            // 可以“基础” dp[i-1] 所表示的所有等差数组，在每个数组后加一个 nums[i]
+            // 可以“继承” dp[i-1] 所表示的所有等差数组，在每个数组后加一个 nums[i]
             if (dp[i - 1] > 0 && nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2])
                 dp[i] = dp[i - 1];
             if (nums[i] - nums[i - 1] == nums[i - 1] - nums[i - 2])
